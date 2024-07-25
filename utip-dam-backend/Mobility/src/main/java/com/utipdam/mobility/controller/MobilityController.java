@@ -38,7 +38,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.web.util.UriComponentsBuilder;
 
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -654,11 +653,6 @@ public class MobilityController {
 
             File fi = new File(strOutPath);
             String pyPath = "/opt/utils/anonymization-v" + ANONYMIZATION_VERSION + ".py";
-
-//            ProcessBuilder processBuilder = new ProcessBuilder("python3", pyPath,
-//                    "--input", strPath, "--k", String.valueOf(dto.getK()));
-//            processBuilder.redirectErrorStream(true);
-//            processBuilder.redirectOutput(ProcessBuilder.Redirect.appendTo(fi));
             ProcessBuilder processBuilder = new ProcessBuilder("/bin/sh", "-c","python3 " + pyPath + " --input " + strPath + " --k " + dto.getK() + " | tail -n +2");
             processBuilder.redirectErrorStream(true);
             processBuilder.redirectOutput(ProcessBuilder.Redirect.appendTo(fi));
@@ -670,8 +664,6 @@ public class MobilityController {
                 String line;
                 long i = 0;
                 BufferedReader br = new BufferedReader(new FileReader(strOutPath));
-//                String firstLine = br.readLine();
- //               String metrics = firstLine.contains("{'data':") ? firstLine.replaceAll("'", "\"") : null;
 
                 while ((line = br.readLine()) != null) {
                     inputBuffer.append(line);
@@ -707,8 +699,6 @@ public class MobilityController {
                             .filename(fileName)
                             .build();
                     responseHeaders.setContentDisposition(contentDisposition);
-                 //   responseHeaders.add("Performance-Metrics", metrics);
-
 
                     InputStream inputStream = new ByteArrayInputStream(inputStr.getBytes(StandardCharsets.UTF_8));
                     InputStreamResource resource = new InputStreamResource(inputStream);
@@ -730,7 +720,6 @@ public class MobilityController {
                             logger.info("Publish to MDS email sent.");
                         }
                     }
-
 
                     return ResponseEntity.ok()
                             .headers(responseHeaders)
@@ -876,10 +865,6 @@ public class MobilityController {
             File fi = new File(strOutPath);
             String pyPath = "/opt/utils/anonymization-v" + ANONYMIZATION_VERSION + ".py";
 
-//            ProcessBuilder processBuilder = new ProcessBuilder("python3", pyPath,
-//                    "--input", strPath, "--k", k);
-//            processBuilder.redirectErrorStream(true);
-//            processBuilder.redirectOutput(ProcessBuilder.Redirect.appendTo(fi));
             ProcessBuilder processBuilder = new ProcessBuilder("/bin/sh", "-c","python3 " + pyPath + " --input " + strPath + " --k " + k + " | tail -n +2");
             processBuilder.redirectErrorStream(true);
             processBuilder.redirectOutput(ProcessBuilder.Redirect.appendTo(fi));
@@ -891,8 +876,6 @@ public class MobilityController {
                 String line;
                 long i = 0;
                 BufferedReader br = new BufferedReader(new FileReader(strOutPath));
-               // String firstLine = br.readLine();
-               // String metrics = firstLine.contains("{'data':") ? firstLine.replaceAll("'", "\"") : null;
 
                 while ((line = br.readLine()) != null) {
                     inputBuffer.append(line);
@@ -930,7 +913,6 @@ public class MobilityController {
                                 .filename(fileName)
                                 .build();
                         responseHeaders.setContentDisposition(contentDisposition);
-               //         responseHeaders.add("Performance-Metrics", metrics);
 
                         InputStream inputStream = new ByteArrayInputStream(inputStr.getBytes(StandardCharsets.UTF_8));
                         InputStreamResource resource = new InputStreamResource(inputStream);
@@ -994,7 +976,6 @@ public class MobilityController {
         return ResponseEntity.internalServerError().body(errorMessage);
 
     }
-
 
     @GetMapping("/mobility/visitorDetection")
     public ResponseEntity<Map<String, Object>> findMeHere(@RequestParam Integer[] locationIds,
@@ -1146,7 +1127,7 @@ public class MobilityController {
 
                 } else {
                     logger.info("retrieving result from internal server");
-                    //get response from internal archive server
+                    //get response from internal server
                     RestTemplateClient restTemplate = new RestTemplateClient();
                     String domain = dd.get().getServer().getDomain();
 

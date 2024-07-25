@@ -1,7 +1,6 @@
 package com.utipdam.mobility.model.service;
 
 
-import com.utipdam.mobility.model.entity.OrderItem;
 import com.utipdam.mobility.model.entity.OrderItemDataset;
 import com.utipdam.mobility.model.repository.OrderItemDatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,6 @@ public class OrderItemDatasetService {
     public List<OrderItemDataset> findAllByOrderItemId(Integer orderItemId) {
         return orderItemDatasetRepository.findAllByOrderItemId(orderItemId);
     }
-
 
     public OrderItemDataset save(OrderItemDataset orderItemDataset) {
         return orderItemDatasetRepository.save(orderItemDataset);

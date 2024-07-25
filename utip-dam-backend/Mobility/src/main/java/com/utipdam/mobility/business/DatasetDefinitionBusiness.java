@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-
 @BusinessService
 public class DatasetDefinitionBusiness {
     @Autowired
@@ -33,7 +32,6 @@ public class DatasetDefinitionBusiness {
 
     @Autowired
     UserRepository userRepository;
-
     private long DEFAULT_USER = 3; //admin
     private String DEFAULT_SERVER = "lucky";
 
@@ -44,7 +42,6 @@ public class DatasetDefinitionBusiness {
     public List<DatasetDefinition> getAllByUserId(Long userId) {
         return datasetDefinitionService.findAllByUserId(userId);
     }
-
 
     public DatasetDefinition getByName(String name) {
         return datasetDefinitionService.findByName(name);
@@ -157,8 +154,10 @@ public class DatasetDefinitionBusiness {
             }else{
                 userOpt = userRepository.findById(dataset.getUserId());
             }
-            user = userOpt.get();
-            data.setUser(user);
+            if (userOpt.isPresent()){
+                user = userOpt.get();
+                data.setUser(user);
+            }
             data.setPublishMDS(dataset.isPublishMDS());
             data.setPublishedOn(dataset.isPublish() && dataset.getPublishedOn() == null ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime()) : ds.get().getPublishedOn());
             data.setFee1d(dataset.getFee1d() == null ? ds.get().getFee1d() : dataset.getFee1d());

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-
 @BusinessService
 public class LocationBusiness {
     @Autowired
@@ -23,7 +22,6 @@ public class LocationBusiness {
     public List<Location> getByDatasetDefinitionId(UUID datasetDefinitionId) {
         return locationService.findByDatasetDefinitionId(datasetDefinitionId);
     }
-
 
     public Location save(Location location){
         return locationService.save(location);

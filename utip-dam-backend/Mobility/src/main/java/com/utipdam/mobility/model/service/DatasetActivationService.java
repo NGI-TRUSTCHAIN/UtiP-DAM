@@ -1,6 +1,5 @@
 package com.utipdam.mobility.model.service;
 
-
 import com.utipdam.mobility.model.entity.DatasetActivation;
 import com.utipdam.mobility.model.repository.DatasetActivationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
-
 
 @Service
 public class DatasetActivationService {

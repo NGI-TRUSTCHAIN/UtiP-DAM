@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-
 @Service
 public class DatasetDefinitionService {
     private final DatasetDefinitionRepository datasetDefinitionRepository;
@@ -19,7 +18,6 @@ public class DatasetDefinitionService {
     public DatasetDefinitionService(DatasetDefinitionRepository datasetDefinitionRepository) {
         this.datasetDefinitionRepository = datasetDefinitionRepository;
     }
-
     public DatasetDefinition findByName(String name) {
         return datasetDefinitionRepository.findByName(name);
     }
@@ -35,11 +33,9 @@ public class DatasetDefinitionService {
     public List<DatasetDefinition> findAllByUserId(Long userId) {
         return datasetDefinitionRepository.findAllByUserIdOrderByUpdatedOnDesc(userId);
     }
-
     public DatasetDefinition save(DatasetDefinition datasetDefinition) {
         return datasetDefinitionRepository.save(datasetDefinition);
     }
-
     public void delete(UUID id) {
         datasetDefinitionRepository.deleteById(id);
     }

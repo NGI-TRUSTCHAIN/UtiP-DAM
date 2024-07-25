@@ -1,6 +1,5 @@
 package com.utipdam.mobility.config;
 
-
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;

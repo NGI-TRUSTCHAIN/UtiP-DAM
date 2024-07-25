@@ -2,7 +2,6 @@ package com.utipdam.mobility.config;
 
 
 import com.utipdam.mobility.business.OrderBusiness;
-import com.utipdam.mobility.model.service.PaymentDetailService;
 import com.utipdam.mobility.model.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -104,6 +102,4 @@ public class SecurityConfig { // extends WebSecurityConfigurerAdapter {
 
         return http.build();
     }
-
-
 }

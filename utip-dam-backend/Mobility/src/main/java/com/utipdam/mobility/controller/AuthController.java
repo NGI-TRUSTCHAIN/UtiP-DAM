@@ -222,7 +222,6 @@ public class AuthController {
         }
     }
 
-
     @DeleteMapping("/deleteAccount")
     @Transactional
     public ResponseEntity<?> delete() {
@@ -244,5 +243,4 @@ public class AuthController {
                     .body(new MessageResponse("Error: User not found"));
         }
     }
-
 }

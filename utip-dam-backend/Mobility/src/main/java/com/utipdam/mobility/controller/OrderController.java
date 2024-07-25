@@ -309,7 +309,6 @@ public class OrderController {
                                                     d.getLicenseStartDate(), d.getAmount(), d.getCurrency(), d.getCreatedAt(), d.getModifiedAt());
                                         }
                                     }
-
                                 }
                             }
                             return null;
@@ -323,7 +322,6 @@ public class OrderController {
         }
         return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
-
 
     @GetMapping("/purchase/{id}")
     public ResponseEntity<Map<String, Object>> purchaseDetail(@PathVariable Integer id) {
@@ -561,7 +559,7 @@ public class OrderController {
                     return null;
                 }).collect(Collectors.toList());
                 licenseList.removeAll(Collections.singleton(null));
-                if (licenseList != null && licenseList.size() > 0) {
+                if (!licenseList.isEmpty()) {
                     response.put("data", licenseList);
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 } else {
@@ -599,34 +597,35 @@ public class OrderController {
             DateFormat f = new SimpleDateFormat("yyyy-MM-dd");
             List<LicenseResponseDTO> licenseList = p.stream().map(d -> {
                 Optional<DatasetActivation> datasetActivationOpt = orderBusiness.getByPaymentDetailId(d.getId());
-                DatasetActivation datasetActivation = datasetActivationOpt.get();
-                User user = userRepository.getReferenceById(datasetActivation.getUserId());
+                if (datasetActivationOpt.isPresent()){
+                    DatasetActivation datasetActivation = datasetActivationOpt.get();
+                    User user = userRepository.getReferenceById(datasetActivation.getUserId());
 
-                OrderItem orderItem = orderBusiness.getOrderItemByOrderId(d.getOrderId()).get(0);
-                Optional<DatasetDefinition> datasetDefinitionOpt = datasetDefinitionBusiness.getById(orderItem.getDatasetDefinitionId());
-                if (datasetDefinitionOpt.isPresent()){
-                    DatasetDefinition datasetDefinition = datasetDefinitionOpt.get();
+                    OrderItem orderItem = orderBusiness.getOrderItemByOrderId(d.getOrderId()).get(0);
+                    Optional<DatasetDefinition> datasetDefinitionOpt = datasetDefinitionBusiness.getById(orderItem.getDatasetDefinitionId());
+                    if (datasetDefinitionOpt.isPresent()){
+                        DatasetDefinition datasetDefinition = datasetDefinitionOpt.get();
 
-                    return new LicenseResponseDTO(d.getId(), datasetDefinition.getId(), datasetDefinition.getName(),
-                            datasetDefinition.getDescription(), datasetDefinition.getUser().getId(),
-                            orderItem.isSelectedDate(), orderItem.isPastDate(), orderItem.isFutureDate(), orderItem.getMonthLicense(),
-                            datasetActivation.getUserId(), user.getUsername(), f.format(d.getCreatedAt()),
-                            datasetActivation.isActive(), d.getLicenseStartDate().toString(), d.getLicenseEndDate().toString(),
-                            d.getStatus(), d.getPaymentSource(), d.getAmount());
+                        return new LicenseResponseDTO(d.getId(), datasetDefinition.getId(), datasetDefinition.getName(),
+                                datasetDefinition.getDescription(), datasetDefinition.getUser().getId(),
+                                orderItem.isSelectedDate(), orderItem.isPastDate(), orderItem.isFutureDate(), orderItem.getMonthLicense(),
+                                datasetActivation.getUserId(), user.getUsername(), f.format(d.getCreatedAt()),
+                                datasetActivation.isActive(), d.getLicenseStartDate().toString(), d.getLicenseEndDate().toString(),
+                                d.getStatus(), d.getPaymentSource(), d.getAmount());
 
+                    }
                 }
+
                 return null;
             }).collect(Collectors.toList());
 
             licenseList.removeAll(Collections.singleton(null));
-            if (licenseList != null && licenseList.size() > 0) {
+            if (!licenseList.isEmpty()) {
                 response.put("data", licenseList);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
             }
-
-
         } else {
             response.put("error", "User not found.");
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);

@@ -10,7 +10,6 @@ import java.util.UUID;
 
 public interface DatasetDefinitionRepository extends JpaRepository<DatasetDefinition, UUID> {
     List<DatasetDefinition> findAllByOrderByUpdatedOnDesc();
-
     List<DatasetDefinition> findAllByUserIdOrderByUpdatedOnDesc(@Param("userId") Long userId);
     Optional<DatasetDefinition> findById(@Param("id") UUID id);
     DatasetDefinition findByName(@Param("name") String name);

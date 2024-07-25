@@ -14,7 +14,6 @@ public interface DownloadsByDayRepository extends JpaRepository<DownloadsByDay, 
     List<DownloadsByDay> findByDatasetDefinitionId(@Param("datasetDefinitionId") UUID datasetDefinitionId);
     DownloadsByDay findByDatasetDefinitionIdAndDate(@Param("datasetDefinitionId") UUID datasetDefinitionId,
                                                           @Param("date") Date date);
-
     @Modifying
     @Query(nativeQuery = true, value = "UPDATE downloads_by_day d SET d.count = d.count + 1 WHERE d.id = :id")
     void incrementCount(@Param("id") Integer id);

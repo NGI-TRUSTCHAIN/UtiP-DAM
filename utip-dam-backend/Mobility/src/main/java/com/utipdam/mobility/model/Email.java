@@ -2,7 +2,6 @@ package com.utipdam.mobility.model;
 
 import lombok.Data;
 
-
 @Data
 public class Email {
     private String name;

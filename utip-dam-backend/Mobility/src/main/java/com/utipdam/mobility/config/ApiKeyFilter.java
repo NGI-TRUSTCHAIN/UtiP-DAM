@@ -52,6 +52,5 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
         //continue process the request
         filterChain.doFilter(request, response);
-
     }
 }

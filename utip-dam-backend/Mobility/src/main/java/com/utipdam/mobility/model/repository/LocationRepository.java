@@ -10,5 +10,4 @@ import java.util.UUID;
 
 public interface LocationRepository extends JpaRepository<Location, LocationId> {
     List<Location> findByDatasetDefinitionId(@Param("datasetDefinitionId") UUID datasetDefinitionId);
-
 }

@@ -11,11 +11,8 @@ import java.util.UUID;
 
 public interface DatasetRepository extends JpaRepository<Dataset, UUID> {
     List<Dataset> findAll();
-
     Optional<Dataset> findById(@Param("id") UUID id);
-
     Dataset findByDatasetDefinitionIdAndStartDate(@Param("datasetDefinitionId") UUID datasetDefinitionId, @Param("startDate") Date startDate);
-
     List<Dataset> findAllByDatasetDefinition_Id(@Param("datasetDefinitionId") UUID datasetDefinitionId);
 
 }

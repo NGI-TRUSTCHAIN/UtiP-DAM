@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Optional;
 
-
 @BusinessService
 public class VendorBusiness {
 
@@ -18,7 +17,6 @@ public class VendorBusiness {
     public List<Vendor> getAll() {
         return vendorService.findAll();
     }
-
 
     public Vendor getByUserId(Long userId) {
         return vendorService.findByUserId(userId);
@@ -46,5 +44,4 @@ public class VendorBusiness {
     public void delete(Integer id) {
         vendorService.delete(id);
     }
-
 }

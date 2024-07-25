@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-
 @BusinessService
 public class DatasetBusiness {
     @Autowired
@@ -25,8 +24,6 @@ public class DatasetBusiness {
                 d.getResolution(), d.getStartDate(), d.getEndDate(), d.getK(), d.getDataPoints(), d.getUpdatedOn())).collect(Collectors.toList());
     }
 
-
-
     public Optional<Dataset> getById(UUID id) {
         return datasetService.findById(id);
     }
@@ -35,13 +32,11 @@ public class DatasetBusiness {
         return datasetService.findByDatasetDefinitionIdAndStartDate(datasetDefinitionId, startDate);
     }
 
-
     public Dataset save(Dataset dataset){
         if (dataset.getId() == null){
             UUID uuid = UUID.randomUUID();
             dataset.setId(uuid);
         }
-
         return datasetService.save(dataset);
     }
 
@@ -59,9 +54,6 @@ public class DatasetBusiness {
     }
 
     public void delete(UUID id) {
-
-
         datasetService.delete(id);
     }
-
 }

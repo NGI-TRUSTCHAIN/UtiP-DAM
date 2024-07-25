@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-
 @BusinessService
 public class OrganizationBusiness {
     @Autowired
@@ -27,7 +26,6 @@ public class OrganizationBusiness {
     public Organization getByNameAndEmail(String name, String email) {
         return organizationService.findByNameAndEmail(name, email);
     }
-
 
     public Optional<Organization> getById(UUID id) {
         return organizationService.findById(id);
@@ -55,5 +53,4 @@ public class OrganizationBusiness {
     public void delete(UUID id) {
         organizationService.delete(id);
     }
-
 }

@@ -19,14 +19,6 @@ public class VendorService {
         this.vendorRepository = vendorRepository;
     }
 
-    public Vendor findByAccountNo(String accountNo) {
-        return vendorRepository.findByAccountNo(accountNo);
-    }
-
-    public Vendor findByAccountName(String accountName) {
-        return vendorRepository.findByAccountName(accountName);
-    }
-
     public Vendor findByUserId(Long userId) {
         return vendorRepository.findByUserId(userId);
     }

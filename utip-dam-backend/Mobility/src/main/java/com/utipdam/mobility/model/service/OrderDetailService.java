@@ -17,7 +17,6 @@ public class OrderDetailService {
     public OrderDetailService(OrderDetailRepository orderDetailRepository) {
         this.orderDetailRepository = orderDetailRepository;
     }
-
     public Optional<OrderDetail> findById(Integer id) {
         return orderDetailRepository.findById(id);
     }
@@ -26,9 +25,6 @@ public class OrderDetailService {
         return orderDetailRepository.findByUserId(userId);
     }
 
-    public OrderDetail findByPendingOrderByUserId(Long userId) {
-        return orderDetailRepository.findByUserId(userId);
-    }
     public OrderDetail save(OrderDetail orderDetail) {
         return orderDetailRepository.save(orderDetail);
     }

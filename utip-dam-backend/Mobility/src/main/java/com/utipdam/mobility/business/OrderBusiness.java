@@ -10,12 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 
 @BusinessService
 public class OrderBusiness {
@@ -84,10 +82,6 @@ public class OrderBusiness {
         return orderItemService.findAllByOrderId(orderId);
     }
 
-    public List<OrderItem> getOrderItemByUserId(Long userId) {
-        return orderItemService.findAllByUserId(userId);
-    }
-
     public Optional<PaymentDetail> getPaymentById(Integer paymentId) {
         return paymentDetailService.findById(paymentId);
     }
@@ -106,14 +100,9 @@ public class OrderBusiness {
         return paymentDetailService.findAllByDatasetOwnerIdAndIsActive(datasetOwnerId, active);
     }
 
-    public List<PaymentDetail> getAllPurchasesByUserIdAndPaymentSource(Long userId, String paymentSource) {
-        return paymentDetailService.findAllByUserIdAndPaymentSource(userId, paymentSource);
-    }
-
     public List<PaymentDetail> getAllPurchasesByDatasetOwnerIdAndPaymentSource(Long datasetOwnerId, String paymentSource) {
         return paymentDetailService.findAllByDatasetOwnerIdAndPaymentSource(datasetOwnerId, paymentSource);
     }
-
 
     public boolean validateApiKey(UUID apiKey) {
         Optional<DatasetActivation> datasetActivationOpt = datasetActivationService.validateApiKey(apiKey);
@@ -180,14 +169,9 @@ public class OrderBusiness {
         }
     }
 
-    public void deleteInvoice(Integer id) {
-        paymentDetailService.delete(id);
-    }
-
     public void deleteActivation(Integer id) {
         datasetActivationService.delete(id);
     }
-
     public void deleteOrderDetail(Integer id) {
         orderDetailService.delete(id);
     }

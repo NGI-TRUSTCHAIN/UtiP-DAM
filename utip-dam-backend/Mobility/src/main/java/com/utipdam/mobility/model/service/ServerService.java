@@ -19,7 +19,6 @@ public class ServerService {
         this.serverRepository = serverRepository;
     }
 
-
     public Server findByName(String name) {
         return serverRepository.findByName(name);
     }

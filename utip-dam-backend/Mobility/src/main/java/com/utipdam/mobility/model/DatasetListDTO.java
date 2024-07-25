@@ -1,4 +1,5 @@
 package com.utipdam.mobility.model;
+
 import lombok.Data;
 
 import java.sql.Date;

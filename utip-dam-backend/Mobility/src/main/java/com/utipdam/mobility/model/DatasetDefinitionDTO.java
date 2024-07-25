@@ -1,9 +1,8 @@
 package com.utipdam.mobility.model;
+
 import com.utipdam.mobility.model.entity.Organization;
 import com.utipdam.mobility.model.entity.Server;
 import lombok.Data;
-
-import java.sql.Timestamp;
 
 @Data
 public class DatasetDefinitionDTO {
