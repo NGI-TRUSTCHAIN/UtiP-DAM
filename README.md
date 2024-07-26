@@ -46,7 +46,7 @@ UtiP-DAM enables the users to share their datasets to Mobility Data Spaces (MDS)
 
 [Marketplace](https://github.com/NGI-TRUSTCHAIN/UtiP-DAM/tree/main)
 
-# Contact
+## Contact
 
 Feel free to reach out to us for more information https://ngi.cs.co.il/contact
 
