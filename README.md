@@ -2,6 +2,8 @@
 
 This repository hosts information to UtiP-DAM as part of NGI TRUSTCHAIN project.
 
+https://trustchain.ngi.eu/utip-dam/
+
 ## Motivation
 
 Correlation Systems is developing UtiP-DAM with a core focus on customer needs in
@@ -43,3 +45,8 @@ UtiP-DAM enables the users to share their datasets to Mobility Data Spaces (MDS)
 [Backend services](https://github.com/NGI-TRUSTCHAIN/UtiP-DAM/tree/master/utip-dam-backend)
 
 [Marketplace](https://github.com/NGI-TRUSTCHAIN/UtiP-DAM/tree/main)
+
+# Contact
+
+Feel free to reach out to us for more information https://ngi.cs.co.il/contact
+
