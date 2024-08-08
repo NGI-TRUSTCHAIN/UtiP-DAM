@@ -2,6 +2,7 @@ package com.utipdam.mobility.controller;
 
 import com.utipdam.mobility.business.DatasetDefinitionBusiness;
 import com.utipdam.mobility.business.DatasetBusiness;
+import com.utipdam.mobility.business.MDSBusiness;
 import com.utipdam.mobility.business.OrderBusiness;
 import com.utipdam.mobility.config.AuthTokenFilter;
 import com.utipdam.mobility.exception.DefaultException;
@@ -41,7 +42,11 @@ public class DatasetController {
     private OrderBusiness orderBusiness;
 
     @Autowired
+    private MDSBusiness mdsBusiness;
+
+    @Autowired
     UserRepository userRepository;
+
 
     private final String PATH = "/data/mobility";
 
@@ -191,9 +196,22 @@ public class DatasetController {
             Optional<DatasetDefinition> opt = datasetDefinitionBusiness.getById(id);
             if (opt.isPresent()) {
                 DatasetDefinition d = opt.get();
+                Boolean mdsOrigVal = d.getPublishMDS();
                 if (userData.getId().equals(d.getUser().getId())) {
                     dataset.setUserId(d.getUser().getId());
-                    response.put("data", datasetDefinitionBusiness.update(id, dataset));
+                    DatasetDefinition dsSave =datasetDefinitionBusiness.update(id, dataset);
+
+                    response.put("data", dsSave);
+
+                    if (dataset.isPublishMDS() && !mdsOrigVal){
+                        String accessToken = mdsBusiness.getAuthenticationToken();
+                        logger.info(accessToken);
+                        if (accessToken != null) {
+                            mdsBusiness.createAsset(dsSave, accessToken);
+                        }
+                    }
+
+
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 } else {
                     return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);

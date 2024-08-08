@@ -133,20 +133,26 @@ public class DatasetDefinitionBusiness {
                 }
             }
             data.setPublish(dataset.isPublish());
-            data.setInternal(dataset.isInternal());
-            if (dataset.isInternal() && dataset.getServer() == null){
-                Server server = serverService.findByName(DEFAULT_SERVER);
-                data.setServer(server);
-            }
-            if (dataset.getServer() != null){
-                Server sv = serverService.findByName(dataset.getServer().getName());
-                if (sv == null) {
-                    Server s = new Server(dataset.getServer().getName(), dataset.getServer().getDomain());
-                    data.setServer(serverService.save(s));
-                }else{
-                    data.setServer(sv);
+            if (ds.get().getInternal()){
+                data.setInternal(true);
+            }else{
+                data.setInternal(dataset.isInternal());
+                if (dataset.isInternal() && dataset.getServer() == null){
+                    Server server = serverService.findByName(DEFAULT_SERVER);
+                    data.setServer(server);
+                }
+                if (dataset.getServer() != null){
+                    Server sv = serverService.findByName(dataset.getServer().getName());
+                    if (sv == null) {
+                        Server s = new Server(dataset.getServer().getName(), dataset.getServer().getDomain());
+                        data.setServer(serverService.save(s));
+                    }else{
+                        data.setServer(sv);
+                    }
                 }
             }
+
+
             Optional<User> userOpt;
             User user;
             if (dataset.getUserId() == null){

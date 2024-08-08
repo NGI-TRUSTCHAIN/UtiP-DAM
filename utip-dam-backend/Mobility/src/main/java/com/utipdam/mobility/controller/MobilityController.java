@@ -11,9 +11,9 @@ import com.opencsv.RFC4180Parser;
 import com.opencsv.RFC4180ParserBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 import com.utipdam.mobility.FileUploadUtil;
-import com.utipdam.mobility.SendEmail;
 import com.utipdam.mobility.business.DatasetDefinitionBusiness;
 import com.utipdam.mobility.business.DatasetBusiness;
+import com.utipdam.mobility.business.MDSBusiness;
 import com.utipdam.mobility.business.OrderBusiness;
 import com.utipdam.mobility.config.AuthTokenFilter;
 import com.utipdam.mobility.config.RestTemplateClient;
@@ -23,10 +23,12 @@ import com.utipdam.mobility.model.repository.RoleRepository;
 import com.utipdam.mobility.model.repository.UserRepository;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.validator.GenericValidator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -96,7 +98,8 @@ public class MobilityController {
     AuthenticationManager authenticationManager;
 
     @Autowired
-    private SendEmail sendEmail;
+    private MDSBusiness mdsBusiness;
+
     @PostMapping(value = {"/mobility/upload", "/mobility/anonymize"})
     public ResponseEntity<?> anonymizeOnly(@RequestPart MultipartFile file,
                                            @RequestPart String k) {
@@ -143,12 +146,11 @@ public class MobilityController {
             int counter = 0;
             String csvDate;
             int dateIndex = -1;
-            while(input.hasNextLine() && counter < 2)
-            {
+            while (input.hasNextLine() && counter < 2) {
                 String[] nextRecord = input.nextLine().split(",");
 
                 if (counter > 0) {
-                    if (dateIndex < 0){
+                    if (dateIndex < 0) {
                         errorMessage = "datetime not found. Please include the file header.";
                         logger.error(errorMessage);
                         return ResponseEntity.badRequest().body(errorMessage);
@@ -160,7 +162,7 @@ public class MobilityController {
                         logger.error(errorMessage);
                         return ResponseEntity.badRequest().body(errorMessage);
                     }
-                }else{
+                } else {
                     dateIndex = Arrays.asList(nextRecord).indexOf(START_TIME);
                     if (dateIndex < 0) {
                         dateIndex = Arrays.asList(nextRecord).indexOf("start_time");
@@ -230,7 +232,7 @@ public class MobilityController {
                         .body(resource);
 
             } else {
-                try(InputStream inputStream = new FileInputStream(fi)) {
+                try (InputStream inputStream = new FileInputStream(fi)) {
 
                     File f = new File(strPath);
                     if (f.delete()) {
@@ -243,7 +245,7 @@ public class MobilityController {
                     String text = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
                     return ResponseEntity.internalServerError().body(text);
-                }catch(IOException e){
+                } catch (IOException e) {
                     errorMessage = e.getMessage();
                     logger.error(errorMessage);
                     return ResponseEntity.internalServerError().body(errorMessage);
@@ -251,7 +253,7 @@ public class MobilityController {
 
             }
         } catch (IOException | InterruptedException e) {
-            if (strPath != null){
+            if (strPath != null) {
                 File f = new File(strPath);
                 if (f.delete()) {
                     logger.info(f + " file deleted");
@@ -282,20 +284,20 @@ public class MobilityController {
 
             if (df.isPresent()) {
                 DatasetDefinition definitionObj = df.get();
-                if (definitionObj.getFee() > 0D){
-                    if (AuthTokenFilter.usernameLoggedIn == null){
+                if (definitionObj.getFee() > 0D) {
+                    if (AuthTokenFilter.usernameLoggedIn == null) {
                         errorMessage = "An api key is required to access premium datasets.";
                         logger.error(errorMessage);
                         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-                    }else{
+                    } else {
                         Optional<User> userOpt = userRepository.findByUsername(AuthTokenFilter.usernameLoggedIn);
                         if (userOpt.isPresent()) {
-                            if (!definitionObj.getUser().getId().equals(userOpt.get().getId())){
+                            if (!definitionObj.getUser().getId().equals(userOpt.get().getId())) {
                                 errorMessage = "An api key is required to access premium datasets.";
                                 logger.error(errorMessage);
                                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
                             }
-                        }else{
+                        } else {
                             errorMessage = "An api key is required to access premium datasets.";
                             logger.error(errorMessage);
                             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -387,15 +389,15 @@ public class MobilityController {
         String errorMessage;
         Collection<UUID> paramList;
         DownloadDTO download = orderBusiness.download;
-        if (!download.isPastDate() && !download.isFutureDate()){
+        if (!download.isPastDate() && !download.isFutureDate()) {
             Collection<UUID> list = download.getDatasetIds();
             paramList = new ArrayList<>(List.of(datasetIds));
-            paramList.retainAll( list );
-            if (paramList.isEmpty()){
+            paramList.retainAll(list);
+            if (paramList.isEmpty()) {
                 errorMessage = "Invalid dataset id";
                 logger.error(errorMessage);
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }else{
+            } else {
                 datasetIds = paramList.toArray(new UUID[]{});
             }
         }
@@ -620,12 +622,11 @@ public class MobilityController {
             int counter = 0;
             String csvDate = null;
             int dateIndex = -1;
-            while(input.hasNextLine() && counter < 2)
-            {
+            while (input.hasNextLine() && counter < 2) {
                 String[] nextRecord = input.nextLine().split(",");
 
                 if (counter > 0) {
-                    if (dateIndex < 0){
+                    if (dateIndex < 0) {
                         errorMessage = "datetime not found. Please include the file header.";
                         logger.error(errorMessage);
                         return ResponseEntity.badRequest().body(errorMessage);
@@ -637,7 +638,7 @@ public class MobilityController {
                         logger.error(errorMessage);
                         return ResponseEntity.badRequest().body(errorMessage);
                     }
-                }else{
+                } else {
                     dateIndex = Arrays.asList(nextRecord).indexOf(START_TIME);
                     if (dateIndex < 0) {
                         dateIndex = Arrays.asList(nextRecord).indexOf("start_time");
@@ -653,7 +654,7 @@ public class MobilityController {
 
             File fi = new File(strOutPath);
             String pyPath = "/opt/utils/anonymization-v" + ANONYMIZATION_VERSION + ".py";
-            ProcessBuilder processBuilder = new ProcessBuilder("/bin/sh", "-c","python3 " + pyPath + " --input " + strPath + " --k " + dto.getK() + " | tail -n +2");
+            ProcessBuilder processBuilder = new ProcessBuilder("/bin/sh", "-c", "python3 " + pyPath + " --input " + strPath + " --k " + dto.getK() + " | tail -n +2");
             processBuilder.redirectErrorStream(true);
             processBuilder.redirectOutput(ProcessBuilder.Redirect.appendTo(fi));
             Process process = processBuilder.start();
@@ -708,17 +709,16 @@ public class MobilityController {
                         logger.info(f + " file deleted");
                     }
 
-                    //if publish to MDS mobility data spaces, email admin
-                    if (ds.getPublishMDS()){
-                        Email email = new Email();
-                        email.setContactEmail(ds.getOrganization().getEmail());
-                        email.setName(ds.getOrganization().getName());
-                        email.setSubject("[UtiP-DAM] Publish to MDS request");
-                        email.setMessage("Publish to Mobility Data Spaces: Dataset " + ds.getId() + " " + ds.getName());
-                        String responseMsg = sendEmail.send(email);
-                        if (responseMsg.equals("Successfully sent")){
-                            logger.info("Publish to MDS email sent.");
+                    if (ds.getPublishMDS()) {
+                        ///////////////////////////////////////////////////////////////////////////////////////
+                        //This section is for publishing dataset to Mobility Data Spaces data catalog using API
+                        //See /opt/mobility-app.properties file
+                        String accessToken = mdsBusiness.getAuthenticationToken();
+                        logger.info(accessToken);
+                        if (accessToken != null) {
+                            mdsBusiness.createAsset(ds, accessToken);
                         }
+                        ///////////////////////////////////////////////////////////////////////////////////////
                     }
 
                     return ResponseEntity.ok()
@@ -729,7 +729,7 @@ public class MobilityController {
                 }
 
             } else {
-                try(InputStream inputStream = new FileInputStream(fi)) {
+                try (InputStream inputStream = new FileInputStream(fi)) {
 
                     File f = new File(strPath);
                     if (f.delete()) {
@@ -737,7 +737,7 @@ public class MobilityController {
                     }
                     String text = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                     return ResponseEntity.internalServerError().body(text);
-                }catch(IOException e){
+                } catch (IOException e) {
                     errorMessage = e.getMessage();
                     logger.error(errorMessage);
                     return ResponseEntity.internalServerError().body(errorMessage);
@@ -765,6 +765,7 @@ public class MobilityController {
         return ResponseEntity.internalServerError().body(errorMessage);
 
     }
+
 
     @PostMapping("/mobility/anonymizationJob/{datasetDefinitionId}")
     public ResponseEntity<?> addDataset(@PathVariable UUID datasetDefinitionId,
@@ -830,12 +831,11 @@ public class MobilityController {
             Scanner input = new Scanner(new File(strPath));
             int counter = 0;
             int dateIndex = -1;
-            while(input.hasNextLine() && counter < 2)
-            {
+            while (input.hasNextLine() && counter < 2) {
                 String[] nextRecord = input.nextLine().split(",");
 
                 if (counter > 0) {
-                    if (dateIndex < 0){
+                    if (dateIndex < 0) {
                         errorMessage = "datetime not found. Please include the file header.";
                         logger.error(errorMessage);
                         return ResponseEntity.badRequest().body(errorMessage);
@@ -847,7 +847,7 @@ public class MobilityController {
                         logger.error(errorMessage);
                         return ResponseEntity.badRequest().body(errorMessage);
                     }
-                }else{
+                } else {
                     dateIndex = Arrays.asList(nextRecord).indexOf(START_TIME);
                     if (dateIndex < 0) {
                         dateIndex = Arrays.asList(nextRecord).indexOf("start_time");
@@ -865,7 +865,7 @@ public class MobilityController {
             File fi = new File(strOutPath);
             String pyPath = "/opt/utils/anonymization-v" + ANONYMIZATION_VERSION + ".py";
 
-            ProcessBuilder processBuilder = new ProcessBuilder("/bin/sh", "-c","python3 " + pyPath + " --input " + strPath + " --k " + k + " | tail -n +2");
+            ProcessBuilder processBuilder = new ProcessBuilder("/bin/sh", "-c", "python3 " + pyPath + " --input " + strPath + " --k " + k + " | tail -n +2");
             processBuilder.redirectErrorStream(true);
             processBuilder.redirectOutput(ProcessBuilder.Redirect.appendTo(fi));
             Process process = processBuilder.start();
@@ -1278,12 +1278,11 @@ public class MobilityController {
                 int counter = 0;
                 String csvDate;
                 int dateIndex = -1;
-                while(input.hasNextLine() && counter < 2)
-                {
+                while (input.hasNextLine() && counter < 2) {
                     String[] nextRecord = input.nextLine().split(",");
 
                     if (counter > 0) {
-                        if (dateIndex < 0){
+                        if (dateIndex < 0) {
                             errorMessage = "datetime not found. Please include the file header.";
                             logger.error(errorMessage);
                             response.put("error", errorMessage);
@@ -1297,7 +1296,7 @@ public class MobilityController {
                             response.put("error", errorMessage);
                             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
                         }
-                    }else{
+                    } else {
                         dateIndex = Arrays.asList(nextRecord).indexOf(START_TIME);
                         if (dateIndex < 0) {
                             dateIndex = Arrays.asList(nextRecord).indexOf("start_time");
@@ -1349,7 +1348,7 @@ public class MobilityController {
                     logger.info(f + " file deleted");
                 }
                 errorMessage = e.getMessage();
-                if (errorMessage == null){
+                if (errorMessage == null) {
                     errorMessage = "Timeout exceeded";
                 }
                 logger.error(errorMessage);
@@ -1367,5 +1366,58 @@ public class MobilityController {
 
     private static String formatToValidMac(String mac) {
         return mac.replaceAll("[^a-zA-Z0-9]", "").toUpperCase();
+    }
+
+    //URL for MDS publish /share
+    @GetMapping("/mobility")
+    public ResponseEntity<?> downloadMobility(@RequestParam String datasetDefinition) throws IOException {
+        HttpHeaders responseHeaders = new HttpHeaders();
+
+        String path = "/data/mobility/" + datasetDefinition + "/";
+        File dir = new File(path);
+        File[] files = dir.listFiles();
+        if (files == null) {
+            String str = "File not found";
+            ByteArrayResource resource = new ByteArrayResource(str.getBytes(StandardCharsets.UTF_8));
+            ContentDisposition contentDisposition = ContentDisposition.builder("inline")
+                    .filename("error.txt")
+                    .build();
+
+            responseHeaders.setContentDisposition(contentDisposition);
+
+            return ResponseEntity.internalServerError()
+                    .headers(responseHeaders)
+                    .contentLength(str.length())
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+
+        } else {
+            Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
+            File fi = files[0];
+            BufferedReader file = new BufferedReader(
+                    new InputStreamReader(new FileSystemResource(fi).getInputStream()));
+            StringBuffer inputBuffer = new StringBuffer();
+            String line;
+
+            while ((line = file.readLine()) != null) {
+                inputBuffer.append(line);
+                inputBuffer.append('\n');
+            }
+            file.close();
+            String inputStr = inputBuffer.toString();
+
+            ContentDisposition contentDisposition = ContentDisposition.builder("inline")
+                    .filename(fi.getName())
+                    .build();
+            responseHeaders.setContentDisposition(contentDisposition);
+            InputStream stream = new ByteArrayInputStream(inputStr.getBytes(StandardCharsets.UTF_8));
+            InputStreamResource resource = new InputStreamResource(stream);
+            return ResponseEntity.ok()
+                    .headers(responseHeaders)
+                    .contentLength(stream.available())
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+        }
+
     }
 }

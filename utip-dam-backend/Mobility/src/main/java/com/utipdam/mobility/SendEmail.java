@@ -53,8 +53,11 @@ public class SendEmail {
             subject = subject == null ? "[Contact Us] Web channel inquiry" : subject;
             message.setSubject(subject);
 
-            String msg = "From: " + email.getName() + "<br/>";
-            msg = msg + "Email: " + email.getContactEmail() + "<br/><br/><br/>";
+            String msg = "";
+            if (email.getContactEmail() != null){
+                msg = "From: " + email.getName() + "<br/>";
+                msg = msg + "Email: " + email.getContactEmail() + "<br/><br/>";
+            }
 
             String body = sanitizeHTML(email.getMessage());
             msg = msg + body;
