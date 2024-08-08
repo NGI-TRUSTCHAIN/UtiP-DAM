@@ -38,7 +38,7 @@ be linked with another, while preserving valuable data insights for analysis.
 
 ## Integration in other Ecosystems
 
-UtiP-DAM enables users to share their datasets to Mobility Data Spaces (MDS)
+UtiP-DAM enables users to share their datasets with Mobility Data Space (MDS)
 
 ## Github
 
