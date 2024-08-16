@@ -19,7 +19,6 @@
 -- Table structure for table `dataset`
 --
 
-DROP TABLE IF EXISTS `dataset`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dataset` (
@@ -42,7 +41,6 @@ CREATE TABLE `dataset` (
 -- Table structure for table `dataset_activation`
 --
 
-DROP TABLE IF EXISTS `dataset_activation`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dataset_activation` (
@@ -63,7 +61,6 @@ CREATE TABLE `dataset_activation` (
 -- Table structure for table `dataset_definition`
 --
 
-DROP TABLE IF EXISTS `dataset_definition`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dataset_definition` (
@@ -99,7 +96,6 @@ CREATE TABLE `dataset_definition` (
 -- Table structure for table `downloads_by_day`
 --
 
-DROP TABLE IF EXISTS `downloads_by_day`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `downloads_by_day` (
@@ -116,7 +112,6 @@ CREATE TABLE `downloads_by_day` (
 -- Table structure for table `location`
 --
 
-DROP TABLE IF EXISTS `location`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `location` (
@@ -135,7 +130,6 @@ CREATE TABLE `location` (
 -- Table structure for table `order_detail`
 --
 
-DROP TABLE IF EXISTS `order_detail`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `order_detail` (
@@ -154,7 +148,6 @@ CREATE TABLE `order_detail` (
 -- Table structure for table `order_item`
 --
 
-DROP TABLE IF EXISTS `order_item`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `order_item` (
@@ -177,7 +170,6 @@ CREATE TABLE `order_item` (
 -- Table structure for table `order_item_dataset`
 --
 
-DROP TABLE IF EXISTS `order_item_dataset`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `order_item_dataset` (
@@ -192,7 +184,7 @@ CREATE TABLE `order_item_dataset` (
 -- Table structure for table `organization`
 --
 
-DROP TABLE IF EXISTS `organization`;
+
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `organization` (
@@ -208,7 +200,6 @@ CREATE TABLE `organization` (
 -- Table structure for table `payment_detail`
 --
 
-DROP TABLE IF EXISTS `payment_detail`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `payment_detail` (
@@ -236,7 +227,7 @@ CREATE TABLE `payment_detail` (
 -- Table structure for table `role`
 --
 
-DROP TABLE IF EXISTS `role`;
+
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `role` (
@@ -250,7 +241,7 @@ CREATE TABLE `role` (
 -- Table structure for table `server`
 --
 
-DROP TABLE IF EXISTS `server`;
+
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `server` (
@@ -266,7 +257,7 @@ CREATE TABLE `server` (
 -- Table structure for table `user`
 --
 
-DROP TABLE IF EXISTS `user`;
+
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user` (
@@ -291,7 +282,6 @@ CREATE TABLE `user` (
 -- Table structure for table `user_role`
 --
 
-DROP TABLE IF EXISTS `user_role`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_role` (
@@ -308,7 +298,6 @@ CREATE TABLE `user_role` (
 -- Table structure for table `vendor`
 --
 
-DROP TABLE IF EXISTS `vendor`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `vendor` (
