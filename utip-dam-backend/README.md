@@ -13,7 +13,16 @@ mvn clean install
 mvn package
 ```
 
-target -> Mobility.war
+Output -> mobility.war
+
+Reverse proxy mapping (Nginx)
+
+```bash
+location /api/ {
+    ...
+    proxy_pass http://localhost:8081/mobility/;
+}
+```
 
 ## Usage
 
