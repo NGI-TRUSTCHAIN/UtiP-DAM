@@ -4,7 +4,13 @@ Tomcat 10, Spring Boot 3, Java 17, MySQL 8
 
 Database: utip_dam.sql
 
-Config file: mobility-app.properties
+Config file: /opt/mobility-app.properties
+
+Other tools: 
+
+/opt/utils/anonymization-v1.4.py
+
+/opt/utils/audit-v1.2.py
 
 ## Installation
 
