@@ -46,6 +46,35 @@ UtiP-DAM enables users to share their datasets with Mobility Data Space (MDS)
 
 [Marketplace](https://github.com/NGI-TRUSTCHAIN/UtiP-DAM/tree/main)
 
+## Installation
+
+Docker
+
+utipdam-docker
+
+docker compose up --build
+
+
+## Usage
+
+1. anonymize
+
+```bash
+curl -D headers.txt -X POST "http://localhost:8888/api/mobility/anonymize" --form file=@test.csv --form k=2
+```
+
+2. audit
+
+```bash
+curl -X POST "http://localhost:8888/api/mobility/audit" --form file=@test.csv --form k=2
+```
+
+3. device to visitor id
+
+```bash
+curl -X GET "http://localhost:8888/api/deviceToVisitorId?sensorId=3281&mac=4C:75:25:97:D1:FD"
+```
+
 ## Contact
 
 Feel free to reach out to us for more information https://ngi.cs.co.il/contact
