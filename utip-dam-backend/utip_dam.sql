@@ -15,6 +15,7 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+use utip_dam;
 --
 -- Table structure for table `dataset`
 --
@@ -237,6 +238,9 @@ CREATE TABLE `role` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+INSERT INTO `role` (id, name) VALUES(1, 'ROLE_USER');
+INSERT INTO `role` (id, name) VALUES(2, 'ROLE_MODERATOR');
+INSERT INTO `role` (id, name) VALUES(3, 'ROLE_ADMIN');
 --
 -- Table structure for table `server`
 --
