@@ -239,6 +239,9 @@ CREATE TABLE `role` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+INSERT INTO `role` (id, name) VALUES(1, 'ROLE_USER');
+INSERT INTO `role` (id, name) VALUES(2, 'ROLE_MODERATOR');
+INSERT INTO `role` (id, name) VALUES(3, 'ROLE_ADMIN');
 --
 -- Table structure for table `server`
 --
