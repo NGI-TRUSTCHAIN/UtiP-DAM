@@ -6,6 +6,8 @@ Database: utip_dam.sql
 
 Config file: /opt/mobility-app.properties
 
+File upload directory: /data/mobility/
+
 Other tools: 
 
 /opt/utils/anonymization-v1.4.py
