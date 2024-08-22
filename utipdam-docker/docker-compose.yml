@@ -14,10 +14,9 @@ services:
       retries: 10
 
   webapp:
-    build: ./cluster/tomcat
+    image: janineson/utipdam_tomcat:latest
     volumes:
       - ./cluster/data:/data
-      - ./cluster/tomcat/webapps/mobility.war:/usr/local/tomcat/webapps/mobility.war
     depends_on:
       db:
         condition: service_healthy
@@ -29,7 +28,7 @@ services:
       - db
 
   portal:
-    build: ./cluster/nginx
+    image: janineson/utipdam_nginx:latest
     depends_on:
       webapp:
         condition: service_healthy
