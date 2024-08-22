@@ -1,13 +1,4 @@
 services:
-  portal:
-    image: nginx:stable-alpine
-    ports:
-      - '8888:80'
-    volumes:
-      - ./cluster/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    links:
-      - webapp:tomcat1
-
   db:
     image: mysql:latest
     environment:
@@ -17,11 +8,32 @@ services:
       MYSQL_PASSWORD: example_db_pass
     volumes:
       - ./cluster/db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
   webapp:
     build: ./cluster/tomcat
     volumes:
       - ./cluster/data:/data
       - ./cluster/tomcat/webapps/mobility.war:/usr/local/tomcat/webapps/mobility.war
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: curl -Is localhost:8080/mobility | head -n 1 | grep 302 || exit 1
+      timeout: 20s
+      retries: 10
     links:
       - db
+
+  portal:
+    build: ./cluster/nginx
+    depends_on:
+      webapp:
+        condition: service_healthy
+    ports:
+      - '8888:80'
+    links:
+      - webapp:tomcat1
