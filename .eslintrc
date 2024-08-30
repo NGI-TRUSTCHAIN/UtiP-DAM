@@ -1,0 +1,23 @@
+{
+  "parser": "@babel/eslint-parser",
+  "extends": ["react-app", "prettier"],
+  "plugins": ["prettier"],
+  "parserOptions": {
+    "requireConfigFile": false,
+    "babelOptions": {
+      "presets": ["@babel/preset-react"]
+    },
+    "sourceType": "module",
+    "ecmaVersion": "latest"
+  },
+  "rules": {
+    "react/prop-types": "off",
+    "react/display-name": "off",
+    "no-console": "warn",
+    "no-eval": "error",
+    "no-unused-vars": "warn",
+    "prettier/prettier": ["error", { "endOfLine": "auto" }],
+    "arrow-body-style": "off",
+    "prefer-arrow-callback": "off"
+  }
+}

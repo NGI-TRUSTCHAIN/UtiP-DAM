@@ -1,0 +1,206 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .button-primary {
+    @apply bg-secondary rounded-full text-primary px-4 py-2 shadow-md shadow-secondary-700/50 hover:bg-secondary-700;
+  }
+  .nav-tab-primary {
+    @apply text-text mx-1 font-semibold hover:font-bold hover:text-primary hover:border-b-2 hover:border-b-primary active:font-bold active:text-primary active:border-b-2 active:border-b-primary;
+  }
+  .nav-tab-primary-selected {
+    @apply text-secondary border-b-2 border-b-secondary font-bold;
+  }
+  .custom-div-icon {
+    @apply bg-transparent rounded-full shadow-lg inline-grid ml-3 mb-[5px];
+  }
+  .custom-div-icon div{
+    @apply bg-white-900 border border-sky-100 inline-flex items-center rounded-md shadow-2xl p-2 hover:text-primary-1200 active:bg-sky-300 focus:bg-sky-300 w-40;
+  }
+  .map-container {
+    @apply h-[350px] w-full;
+  }
+  .custom-div-icon .location-point {
+    @apply bg-sky-600 p-[5px] w-fit rounded-full mr-2 ring-4 ring-sky-300
+  }
+  .custom-div-icon .location-point-selected {
+     @apply bg-amber-700 p-[5px] w-fit rounded-full mr-2 ring-4 ring-amber-500
+  }
+  .full-inline-between {
+    @apply w-full inline-flex justify-between items-center
+  }
+  .rotateWord {
+    animation: wordCarousel 3s infinite ease-in-out;
+  }
+  .rotateWord:nth-child(2) {
+    animation-delay: 2s;
+  }
+  .rotateWord:nth-child(3) {
+    animation-delay: 3s;
+  }
+}
+
+.masonry {
+  display: grid;
+  justify-content: space-between;
+}
+.masonry:after {/* clearfix */
+  content: '';
+  display: block;
+  clear: both;
+}
+.masonry-sizer {
+  /* width: 33.33%; */
+  @apply w-1/3 lg:w-1/3 md:w-1/2 sm:w-full xs:w-full ;
+}
+.masonry-item {
+  @apply w-[32%] lg:w-[32%] md:w-[48%] sm:w-full xs:w-full;
+}
+
+/* css override */
+body {
+  overflow-y: auto; /* Always show vertical scrollbar */
+  scrollbar-width: thin;/* For Firefox */
+  position: fixed;
+}
+
+/* For Webkit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+  width: 5px; 
+}
+::-webkit-scrollbar:hover {
+  width: 9px; 
+}
+::-webkit-scrollbar-thumb {
+  background-color: #4b88a626; 
+  margin-top: 7px;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  border-radius: 5px;
+  background-color: #4b88a6dc; 
+}
+
+.custom-range-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: #d5dbe1;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+}
+
+.custom-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: #086cda;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+}
+
+.custom-range-slider::-webkit-slider-thumb:hover {
+  box-shadow: 0px 0px 0px 8px rgba(83, 166, 226, 0.356);
+  transition: 0.3s ease-in-out;
+}
+
+.custom-range-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #086cda;
+  cursor: pointer;
+}
+
+.custom-range-slider-div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.custom-range-slidervalue {
+  font-weight: 600;
+  color: #111827;
+}
+
+.bg-dataset {
+  background-image: url(../images/bg/dataset.jpg);
+}
+.bg-fluid {
+  background-image: linear-gradient(45deg, #066cca 0%, #4b4ba2 100%);
+}
+.bg-pattern {
+  background-image: url(../svgs/patternpad.svg);
+}
+.bg-blurry {
+  background-image: url(../svgs/bbblurry.svg);
+}
+.bg-people {
+  background-image: url(../images/bg/people.jpg);
+}
+.bg-deep-mind {
+  background-image: url(../images/bg/g-deep-mind.jpg);
+}
+/*START: color animation for Title */
+@keyframes color-animation {
+  0% {
+    color: inherit;
+  }
+  32% {
+    color: var(--color-1);
+  }
+  33% {
+    color: var(--color-2);
+  }
+  65% {
+    color: var(--color-2);
+  }
+  66% {
+    color: var(--color-3);
+  }
+  99% {
+    color: var(--color-3);
+  }
+  100% {
+    color: var(--color-1);
+  }
+}
+
+.title-word {
+  animation: color-animation 4s linear infinite;
+  letter-spacing: 1px;
+}
+
+.title-word-1 {
+  --color-1: #eefcff;
+  --color-2: #1475c0;
+  --color-3: #1475c0;
+}
+
+.title-word-2 {
+  --color-1: #1475c0;
+  --color-2: #eefcff;
+  --color-3: #1475c0;
+}
+
+.title-word-3 {
+  --color-1: #1475c0;
+  --color-2: #1475c0;
+  --color-3: #eefcff;
+}
+/*END: color animation for Title */
+.text-shadow-xs {
+text-shadow: 1px 1px 2px rgba(24, 89, 200, 0.5);
+}
+.text-shadow-sm {
+text-shadow: 2px 2px 4px rgba(24, 89, 200, 0.5);
+}
