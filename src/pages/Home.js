@@ -501,7 +501,7 @@ export const GitHubDiv = () => {
   const [updatedAt, setUpdatedAt] = useState('');
 
   const cachedData = JSON.parse(localStorage.getItem('cachedData'));
-
+  // console.log('cachedData', cachedData);
   useEffect(() => {
     const fetchGitHubData = async () => {
       const token = process.env.REACT_APP_GITHUB_TOKEN;
@@ -522,7 +522,6 @@ export const GitHubDiv = () => {
             { headers }
           );
           const repoData = await repoResponse.json();
-
           setStars(repoData?.stargazers_count);
           setUpdatedAt(repoData?.updated_at);
           // Cache new data
