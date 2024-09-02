@@ -42,7 +42,8 @@ export const authenticateUserApiReq = createAsyncThunk(
         if (response.data) {
           cookies.set('token', response?.data?.token, {
             path: '/',
-            secure: true,
+            // secure: true,
+            secure: false,
           });
           cookies.set(
             'account',
@@ -52,7 +53,8 @@ export const authenticateUserApiReq = createAsyncThunk(
             },
             {
               path: '/',
-              secure: true,
+              // secure: true,
+              secure: false,
             }
           );
           return response.data;
