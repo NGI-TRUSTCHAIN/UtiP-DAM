@@ -49,11 +49,10 @@ UtiP-DAM enables users to share their datasets with Mobility Data Space (MDS)
 ## Installation
 
 Docker
-
-utipdam-docker
-
-docker compose up --build
-
+```bash
+cd utipdam-docker
+docker-compose pull && docker-compose up -d
+```
 
 ## Usage
 
