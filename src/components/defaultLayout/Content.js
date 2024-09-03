@@ -7,9 +7,12 @@ import Privacy from '../../pages/Privacy';
 import Signup from '../Signup';
 import TermsOfService from '../../pages/TermsOfService';
 import { useLocation } from 'react-router-dom';
+import GooglePageTracking from '../../utils/GooglePageTracking';
 
 const Content = () => {
   const { pathname } = useLocation();
+
+  GooglePageTracking();
 
   let Page;
   switch (pathname) {
