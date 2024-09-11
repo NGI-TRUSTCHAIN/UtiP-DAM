@@ -1,18 +1,21 @@
 # UtiP-DAM
 
-Tomcat 10, Spring Boot 3, Java 17, MySQL 8
+**Tomcat 10, Spring Boot 3, Java 17, MySQL 8**
 
-Database: utip_dam.sql
+Database: `utip_dam.sql`
 
-Config file: /opt/mobility-app.properties
+Config file: `/opt/mobility-app.properties`
 
-File upload directory: /data/mobility/
+File upload directory: `/data/mobility/`
 
 Other tools: 
 
-/opt/utils/anonymization-v1.4.py
+`/opt/utils/anonymization-v1.4.py`
 
-/opt/utils/audit-v1.2.py
+`/opt/utils/audit-v1.2.py`
+
+Input:
+`test.csv`
 
 ## Installation
 
