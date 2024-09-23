@@ -32,8 +32,6 @@ public class DatasetDefinitionBusiness {
 
     @Autowired
     UserRepository userRepository;
-    private long DEFAULT_USER = 3; //admin
-    private String DEFAULT_SERVER = "lucky";
 
     public List<DatasetDefinition> getAll() {
         return datasetDefinitionService.findAll();
@@ -65,10 +63,7 @@ public class DatasetDefinitionBusiness {
         ds.setFee(dataset.getFee());
         ds.setInternal(dataset.isInternal());
         ds.setPublish(dataset.isPublish());
-        if (dataset.isInternal() && dataset.getServer() == null){
-            Server server = serverService.findByName(DEFAULT_SERVER);
-            ds.setServer(server);
-        }
+
         if (dataset.getServer() != null){
             Server sv = serverService.findByName(dataset.getServer().getName());
             if (sv == null) {
@@ -78,13 +73,10 @@ public class DatasetDefinitionBusiness {
                 ds.setServer(sv);
             }
         }
-        Optional<User> userOpt;
+
         User user;
-        if (dataset.getUserId() == null){
-            userOpt = userRepository.findById(DEFAULT_USER);
-        }else{
-            userOpt = userRepository.findById(dataset.getUserId());
-        }
+        Optional<User>  userOpt = userRepository.findById(dataset.getUserId());
+
         user = userOpt.get();
         ds.setUser(user);
         ds.setPublishMDS(dataset.isPublishMDS());
@@ -137,10 +129,6 @@ public class DatasetDefinitionBusiness {
                 data.setInternal(true);
             }else{
                 data.setInternal(dataset.isInternal());
-                if (dataset.isInternal() && dataset.getServer() == null){
-                    Server server = serverService.findByName(DEFAULT_SERVER);
-                    data.setServer(server);
-                }
                 if (dataset.getServer() != null){
                     Server sv = serverService.findByName(dataset.getServer().getName());
                     if (sv == null) {
@@ -153,13 +141,9 @@ public class DatasetDefinitionBusiness {
             }
 
 
-            Optional<User> userOpt;
             User user;
-            if (dataset.getUserId() == null){
-                userOpt = userRepository.findById(DEFAULT_USER);
-            }else{
-                userOpt = userRepository.findById(dataset.getUserId());
-            }
+            Optional<User> userOpt = userRepository.findById(dataset.getUserId());
+
             if (userOpt.isPresent()){
                 user = userOpt.get();
                 data.setUser(user);
