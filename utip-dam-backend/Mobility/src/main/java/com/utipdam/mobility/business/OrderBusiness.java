@@ -111,27 +111,33 @@ public class OrderBusiness {
             LocalDate dt = datasetActivation.getExpirationDate().toLocalDate();
             LocalDate expirationDate = dt.plusDays(1);
             if (datasetActivation.isActive() && (expirationDate.isEqual(LocalDate.now()) || expirationDate.isAfter(LocalDate.now()))) {
-                Optional<OrderItem> orderItemOpt = orderItemService.findById(datasetActivation.getOrderItemId());
-                if (orderItemOpt.isPresent()) {
-                    OrderItem order = orderItemOpt.get();
-                    List<UUID> datasets = null;
-                    if (order.isSelectedDate()) {
-                        List<OrderItemDataset> orderItemDatasets = orderItemDatasetService.findAllByOrderItemId(order.getId());
-                        datasets = orderItemDatasets.stream().map(OrderItemDataset::getDatasetId).collect(Collectors.toList());
-                    }
-
-                    DownloadDTO d = new DownloadDTO();
-                    d.setDatasetDefinitionId(order.getDatasetDefinitionId());
-                    d.setSelectedDate(order.isSelectedDate());
-                    d.setPastDate(order.isPastDate());
-                    d.setFutureDate(order.isFutureDate());
-                    d.setDatasetIds(datasets);
-                    download = d;
+                OrderItem order = getOrderItem(datasetActivation);
+                List<UUID> datasets = null;
+                if (order.isSelectedDate()) {
+                    List<OrderItemDataset> orderItemDatasets = orderItemDatasetService.findAllByOrderItemId(order.getId());
+                    datasets = orderItemDatasets.stream().map(OrderItemDataset::getDatasetId).collect(Collectors.toList());
                 }
+                download = getDownloadDTO(order, datasets);
                 return true;
             }
         }
         return false;
+    }
+
+    private OrderItem getOrderItem(DatasetActivation datasetActivation){
+        Optional<OrderItem> orderItemOpt = orderItemService.findById(datasetActivation.getOrderItemId());
+        return orderItemOpt.orElse(null);
+    }
+
+    private DownloadDTO getDownloadDTO(OrderItem order, List<UUID> datasets){
+        DownloadDTO d = new DownloadDTO();
+        d.setDatasetDefinitionId(order.getDatasetDefinitionId());
+        d.setSelectedDate(order.isSelectedDate());
+        d.setPastDate(order.isPastDate());
+        d.setFutureDate(order.isFutureDate());
+        d.setDatasetIds(datasets);
+        return d;
+
     }
 
     public void incrementCount(Integer id){

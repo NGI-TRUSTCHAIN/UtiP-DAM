@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import com.utipdam.mobility.JwtUtils;
 import com.utipdam.mobility.config.AuthTokenFilter;
-import com.utipdam.mobility.exception.DefaultException;
 import com.utipdam.mobility.model.*;
 import com.utipdam.mobility.model.entity.Role;
 import com.utipdam.mobility.model.entity.ERole;
@@ -57,7 +56,7 @@ public class AuthController {
         String jwt = jwtUtils.generateJwtToken(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        if (!userDetails.isActive()){
+        if (!userDetails.isActive()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -97,7 +96,14 @@ public class AuthController {
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()), true, null);
 
-        Set<String> strRoles = signUpRequest.getRole();
+
+        user.setRoles(getRoles(signUpRequest.getRole()));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    }
+
+    private Set<Role> getRoles(Set<String> strRoles) {
         Set<Role> roles = new HashSet<>();
 
         if (strRoles == null) {
@@ -126,22 +132,19 @@ public class AuthController {
                 }
             });
         }
-
-        user.setRoles(roles);
-        userRepository.save(user);
-
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        return roles;
     }
 
+
     @PatchMapping("/account")
-    public ResponseEntity<?> update(@RequestBody SignupRequest signUpRequest) throws DefaultException {
+    public ResponseEntity<?> update(@RequestBody SignupRequest signUpRequest) {
         if (signUpRequest.getEmail() == null && signUpRequest.getUsername() == null) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Enter email or username you want to update"));
         }
 
-        if (signUpRequest.getUsername() != null){
+        if (signUpRequest.getUsername() != null) {
             if (!signUpRequest.getUsername().matches(regex)) {
                 return ResponseEntity
                         .badRequest()
@@ -149,6 +152,25 @@ public class AuthController {
             }
         }
 
+        try {
+            User user = getUser(signUpRequest);
+            if (user == null){
+                return ResponseEntity
+                        .badRequest()
+                        .body(new MessageResponse("Error: User not found"));
+            }else{
+                userRepository.save(user);
+                return ResponseEntity.ok(new MessageResponse("User updated successfully!"));
+            }
+
+        } catch (DataIntegrityViolationException ex) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Username is already taken!"));
+        }
+    }
+
+    private User getUser(SignupRequest signUpRequest) {
         Optional<User> userOpt = userRepository.findByUsername(AuthTokenFilter.usernameLoggedIn);
 
         if (userOpt.isPresent()) {
@@ -165,21 +187,10 @@ public class AuthController {
                     userData.getPassword(), userData.getActive(), userData.getEndDate());
 
             user.setRoles(userData.getRoles());
-            try {
-                userRepository.save(user);
-                return ResponseEntity.ok(new MessageResponse("User updated successfully!"));
-            } catch (DataIntegrityViolationException ex) {
-                return ResponseEntity
-                        .badRequest()
-                        .body(new MessageResponse("Error: Username is already taken!"));
-            }
 
-        } else {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: User not found"));
+            return user;
         }
-
+        return null;
     }
 
     @PatchMapping("/accountPw")
@@ -229,7 +240,7 @@ public class AuthController {
 
         if (userOpt.isPresent()) {
             User userData = userOpt.get();
-            if (userData.getUsername().equalsIgnoreCase("admin") ){
+            if (userData.getUsername().equalsIgnoreCase("admin")) {
                 return ResponseEntity
                         .badRequest()
                         .body(new MessageResponse("Error: Deleting admin account not permitted. Contact system administrator."));

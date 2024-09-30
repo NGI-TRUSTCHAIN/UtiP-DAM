@@ -43,17 +43,10 @@ public class ServerController {
     @PostMapping("/server")
     public ResponseEntity<Map<String, Object>> save(@RequestBody Server server) {
         Map<String, Object> response = new HashMap<>();
-        if (server.getName() == null) {
-            logger.error("Name is required");
-            response.put("error", "Name is required");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        ResponseEntity<Map<String, Object>> error = validate(server);
+        if (error != null){
+            return error;
         }
-        if (server.getDomain() == null) {
-            logger.error("Domain is required");
-            response.put("error", "Domain is required");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-
 
         Server sv = serverBusiness.getByName(server.getName());
 
@@ -65,6 +58,21 @@ public class ServerController {
         }
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private ResponseEntity<Map<String, Object>> validate(Server server){
+        Map<String, Object> response = new HashMap<>();
+        if (server.getName() == null) {
+            logger.error("Name is required");
+            response.put("error", "Name is required");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        if (server.getDomain() == null) {
+            logger.error("Domain is required");
+            response.put("error", "Domain is required");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        return null;
     }
 
     @PutMapping("/server/{id}")

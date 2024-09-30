@@ -27,10 +27,7 @@ public class LocationBusiness {
         return locationService.save(location);
     }
 
-    public Location update(Integer id, UUID datasetDefinitionId, Location location) throws DefaultException {
-        if (id == null) {
-            throw new DefaultException("id can not be null");
-        }
+    public Location update(Integer id, UUID datasetDefinitionId, Location location){
         Optional<Location> ds = locationService.findById(id, datasetDefinitionId);
         if (ds.isPresent()){
             ds.get().update(location);

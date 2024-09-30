@@ -59,20 +59,9 @@ public class VendorController {
     @Transactional
     public ResponseEntity<Map<String, Object>> save(@RequestBody Vendor vendor) {
         Map<String, Object> response = new HashMap<>();
-        if (vendor.getAccountNo() == null) {
-            logger.error("Account no. is required");
-            response.put("error", "Account no. is required");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-        if (vendor.getAccountName() == null) {
-            logger.error("Account name is required");
-            response.put("error", "Account name is required");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-        if (vendor.getBankName() == null) {
-            logger.error("Bank name is required");
-            response.put("error", "Bank name is required");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        ResponseEntity<Map<String, Object>> error = validate(vendor);
+        if (error != null){
+            return  error;
         }
         Optional<User> userOpt = userRepository.findByUsername(AuthTokenFilter.usernameLoggedIn);
         if (userOpt.isPresent()){
@@ -90,6 +79,26 @@ public class VendorController {
             response.put("error", "User not found");
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
+    }
+
+    private ResponseEntity<Map<String, Object>> validate(Vendor vendor){
+        Map<String, Object> response = new HashMap<>();
+        if (vendor.getAccountNo() == null) {
+            logger.error("Account no. is required");
+            response.put("error", "Account no. is required");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        if (vendor.getAccountName() == null) {
+            logger.error("Account name is required");
+            response.put("error", "Account name is required");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        if (vendor.getBankName() == null) {
+            logger.error("Bank name is required");
+            response.put("error", "Bank name is required");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        return null;
     }
 
     @PutMapping("/vendor")

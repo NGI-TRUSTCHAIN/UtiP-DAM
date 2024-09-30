@@ -58,45 +58,10 @@ public class DatasetController {
         Pageable paging = PageRequest.of(page, size);
         List<DatasetDefinition> pResult = datasetDefinitionBusiness.getAll();
         Stream<DatasetResponseDTO> data = pResult.stream().
-                map(d -> {
-                    List<DatasetListDTO> dsList = datasetBusiness.getAllByDatasetDefinitionId(d.getId());
-                    List<DownloadsByDay> dlList = orderBusiness.getAllByDatasetDefinitionId(d.getId());
-
-                    return new DatasetResponseDTO(d.getName(),
-                            d.getDescription(), d.getCountryCode(), d.getCity(),
-                            d.getFee(), d.getPublish(),
-                            d.getOrganization(), d.getId(),
-                            d.getUpdatedOn(), (long) dsList.stream().filter(o -> o != null && o.getDataPoints() != null)
-                            .mapToLong(DatasetListDTO::getDataPoints)
-                            .average()
-                            .orElse(0L), dsList, d.getUser().getId(), d.getInternal(),
-                            dlList.stream().mapToInt(DownloadsByDay::getCount).sum(),
-                            d.getPublishMDS(), d.getPublishedOn(), d.getFee1d(), d.getFee3mo(), d.getFee6mo(), d.getFee12mo(),
-                            d.getUser().getVendor());
-
-                });
+                map(this::getDatasetResponseDTO);
 
         Page<DatasetResponseDTO> pageResult;
-        List<DatasetResponseDTO> lst;
-        if (publish == null) {
-            if (free == null) {
-                lst = data.collect(Collectors.toList());
-            } else {
-                lst = data.filter(dt -> dt.getFee() != null && (free ? dt.getFee().equals(0D) : dt.getFee() > 0))
-                        .collect(Collectors.toList());
-            }
-
-        } else {
-            if (free == null) {
-                lst = data.filter(dt -> dt.getPublish() != null && (publish == dt.getPublish()))
-                        .collect(Collectors.toList());
-            } else {
-                lst = data.filter(dt -> dt.getPublish() != null && (publish == dt.getPublish()) &&
-                                dt.getFee() != null && (free ? dt.getFee().equals(0D) : dt.getFee() > 0))
-                        .collect(Collectors.toList());
-            }
-
-        }
+        List<DatasetResponseDTO> lst = getDatasetResponseList(publish, free, data);
 
         int start = (int) paging.getOffset();
         int end = Math.min((start + paging.getPageSize()), lst.size());
@@ -110,23 +75,7 @@ public class DatasetController {
         Map<String, Object> response = new HashMap<>();
 
         Stream<DatasetResponseDTO> data = datasetDefinitionBusiness.getAll().stream().
-                map(d -> {
-                    List<DatasetListDTO> dsList = datasetBusiness.getAllByDatasetDefinitionId(d.getId());
-                    List<DownloadsByDay> dlList = orderBusiness.getAllByDatasetDefinitionId(d.getId());
-
-                    return new DatasetResponseDTO(d.getName(),
-                            d.getDescription(), d.getCountryCode(), d.getCity(),
-                            d.getFee(), d.getPublish(),
-                            d.getOrganization(), d.getId(),
-                            d.getUpdatedOn(), (long) dsList.stream().filter(o -> o != null && o.getDataPoints() != null)
-                            .mapToLong(DatasetListDTO::getDataPoints)
-                            .average()
-                            .orElse(0L), dsList, d.getUser().getId(), d.getInternal(),
-                            dlList.stream().mapToInt(DownloadsByDay::getCount).sum(),
-                            d.getPublishMDS(), d.getPublishedOn(), d.getFee1d(), d.getFee3mo(), d.getFee6mo(), d.getFee12mo(),
-                            d.getUser().getVendor());
-
-                });
+                map(this::getDatasetResponseDTO);
 
         if (publish == null) {
             response.put("data", data
@@ -134,16 +83,13 @@ public class DatasetController {
         } else {
             if (publish) {
                 response.put("data", data
-                        .filter(dt -> dt.getPublish() != null && dt.getPublish())
+                        .filter(dt -> checkPublish(dt.getPublish(), true))
                         .collect(Collectors.toList()));
             } else {
                 response.put("data", data
-                        .filter(dt -> dt.getPublish() != null && !dt.getPublish())
+                        .filter(dt -> checkPublish(dt.getPublish(), false))
                         .collect(Collectors.toList()));
-
             }
-
-
         }
 
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -161,20 +107,11 @@ public class DatasetController {
                             d.getDescription(), d.getCountryCode(), d.getCity(),
                             d.getFee(), d.getPublish(), d.getId(),
                             d.getUpdatedOn(), d.getInternal())
-
                     );
-            if (publish != null) {
-                if (publish) {
-                    data = data.filter(dt -> dt.getPublish() != null && dt.getPublish());
-                } else {
-                    data = data  .filter(dt -> dt.getPublish() != null && !dt.getPublish());
-                }
-            }
-
-            List<MyDatasetsDTO> dto = data.collect(Collectors.toList());
-            if (dto.isEmpty()){
+            List<MyDatasetsDTO> dto = checkPublishData(publish, data);
+            if (dto.isEmpty()) {
                 return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
-            }else{
+            } else {
                 response.put("data", dto);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
@@ -187,66 +124,40 @@ public class DatasetController {
 
     @PutMapping("/datasetDefinition/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable UUID id,
-                                                      @RequestBody DatasetDefinitionDTO dataset) throws DefaultException {
+                                                      @RequestBody DatasetDefinitionDTO dataset) {
         Optional<User> userOpt = userRepository.findByUsername(AuthTokenFilter.usernameLoggedIn);
         Map<String, Object> response = new HashMap<>();
         if (userOpt.isPresent()) {
             User userData = userOpt.get();
 
-            Optional<DatasetDefinition> opt = datasetDefinitionBusiness.getById(id);
-            if (opt.isPresent()) {
-                DatasetDefinition d = opt.get();
-                Boolean mdsOrigVal = d.getPublishMDS();
-                if (userData.getId().equals(d.getUser().getId())) {
+            DatasetDefinition d = getDatasetDefinition(id);
+            if (d == null) {
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            } else {
+
+                if (checkUser(userData, d.getUser().getId())) {
                     dataset.setUserId(d.getUser().getId());
-                    DatasetDefinition dsSave =datasetDefinitionBusiness.update(id, dataset);
-
+                    DatasetDefinition dsSave = datasetDefinitionBusiness.update(id, dataset);
                     response.put("data", dsSave);
-
-                    if (dataset.isPublishMDS() && !mdsOrigVal){
-                        String accessToken = mdsBusiness.getAuthenticationToken();
-                        logger.info(accessToken);
-                        if (accessToken != null) {
-                            mdsBusiness.createAsset(dsSave, accessToken);
-                        }
-                    }
-
-
+                    createAsset(dataset.isPublishMDS(), d, dsSave);
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 } else {
                     return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
                 }
 
-            } else {
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
-
         } else {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
 
-    //todo
     @GetMapping("/dataset/{datasetDefinitionId}")
     public ResponseEntity<Map<String, Object>> getById(@PathVariable UUID datasetDefinitionId) {
         Map<String, Object> response = new HashMap<>();
         Optional<DatasetDefinition> opt = datasetDefinitionBusiness.getById(datasetDefinitionId);
         if (opt.isPresent()) {
             DatasetDefinition d = opt.get();
-            List<DatasetListDTO> dsList = datasetBusiness.getAllByDatasetDefinitionId(d.getId());
-            List<DownloadsByDay> dlList = orderBusiness.getAllByDatasetDefinitionId(d.getId());
-
-            response.put("data", new DatasetResponseDTO(d.getName(),
-                    d.getDescription(), d.getCountryCode(), d.getCity(),
-                    d.getFee(), d.getPublish(),
-                    d.getOrganization(), d.getId(),
-                    d.getUpdatedOn(), (long) dsList.stream().filter(o -> o != null && o.getDataPoints() != null)
-                    .mapToLong(DatasetListDTO::getDataPoints)
-                    .average()
-                    .orElse(0L), dsList, d.getUser().getId(), d.getInternal(),
-                    dlList.stream().mapToInt(DownloadsByDay::getCount).sum(),
-                    d.getPublishMDS(), d.getPublishedOn(), d.getFee1d(), d.getFee3mo(), d.getFee6mo(), d.getFee12mo(),
-                    d.getUser().getVendor()));
+            response.put("data", getDatasetResponseDTO(d));
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -260,20 +171,13 @@ public class DatasetController {
 
         if (userOpt.isPresent()) {
             User userData = userOpt.get();
-
-            Optional<DatasetDefinition> dd = datasetDefinitionBusiness.getById(id);
-            if (dd.isPresent()) {
-                DatasetDefinition datasetDef = dd.get();
-                if (userData.getId().equals(datasetDef.getUser().getId()) ||
-                        userData.getRoles().stream().map(r -> r.getName().name()).toList().contains(ERole.ROLE_ADMIN.name())) {
-                    if (datasetDef.getInternal() != null && !datasetDef.getInternal()) {
-                        try {
-                            FileUtils.deleteDirectory(new File(PATH + "/" + datasetDef.getId()));
-                        } catch (IOException e) {
-                            logger.error(e.getMessage());
-                        }
-                    }
-
+            DatasetDefinition datasetDef = getDatasetDefinition(id);
+            if (datasetDef == null) {
+                return ResponseEntity
+                        .badRequest()
+                        .body(new MessageResponse("Error: Dataset definition not found"));
+            } else {
+                if (checkDelete(userData, datasetDef)){
                     datasetDefinitionBusiness.delete(id);
                     return ResponseEntity.ok(new MessageResponse("Dataset definition deleted successfully!"));
                 } else {
@@ -281,11 +185,6 @@ public class DatasetController {
                             .badRequest()
                             .body(new MessageResponse("Not authorized"));
                 }
-
-            } else {
-                return ResponseEntity
-                        .badRequest()
-                        .body(new MessageResponse("Error: Dataset definition not found"));
             }
         } else {
             return ResponseEntity
@@ -296,30 +195,25 @@ public class DatasetController {
 
     @DeleteMapping("/dataset/{id}")
     public ResponseEntity<?> deleteDataset(@PathVariable UUID id) {
-        Optional<User> userOpt = userRepository.findByUsername(AuthTokenFilter.usernameLoggedIn);
-
-        if (userOpt.isPresent()) {
-            User userData = userOpt.get();
-            Optional<Dataset> ds = datasetBusiness.getById(id);
-            if (ds.isPresent()) {
-                Dataset dataset = ds.get();
-                Optional<DatasetDefinition> dd = datasetDefinitionBusiness.getById(dataset.getDatasetDefinition().getId());
-                if (dd.isPresent()) {
-                    DatasetDefinition datasetDef = dd.get();
-                    if (userData.getId().equals(datasetDef.getUser().getId())||
-                            userData.getRoles().stream().map(r -> r.getName().name()).toList().contains(ERole.ROLE_ADMIN.name())) {
-                        if (datasetDef.getInternal() != null && !datasetDef.getInternal()) {
-                            File files = new File(PATH + "/" + datasetDef.getId());
-                            if (files.listFiles() != null) {
-                                for (File f : files.listFiles()) {
-                                    if (f.getName().contains(dataset.getId().toString())) {
-                                        f.delete();
-                                    }
-                                }
-                            }
-
-                        }
-
+        User userData = getUser(AuthTokenFilter.usernameLoggedIn);
+        if (userData == null) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: User not found"));
+        } else {
+            Dataset dataset = getDataset(id);
+            if (dataset == null) {
+                return ResponseEntity
+                        .badRequest()
+                        .body(new MessageResponse("Error: Dataset not found"));
+            } else {
+                DatasetDefinition datasetDef = getDatasetDefinition(dataset.getDatasetDefinition().getId());
+                if (datasetDef == null) {
+                    return ResponseEntity
+                            .badRequest()
+                            .body(new MessageResponse("Error: Dataset definition not found"));
+                } else {
+                    if (checkDelete(userData, datasetDef, dataset)) {
                         datasetBusiness.delete(id);
                         return ResponseEntity.ok(new MessageResponse("Dataset deleted successfully!"));
                     } else {
@@ -327,23 +221,10 @@ public class DatasetController {
                                 .badRequest()
                                 .body(new MessageResponse("Not authorized"));
                     }
-                } else {
-                    return ResponseEntity
-                            .badRequest()
-                            .body(new MessageResponse("Error: Dataset definition not found"));
                 }
-            } else {
-                return ResponseEntity
-                        .badRequest()
-                        .body(new MessageResponse("Error: Dataset not found"));
             }
-        } else {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: User not found"));
         }
     }
-
 
     @GetMapping("/datasetDefinitions")
     public ResponseEntity<Page<DatasetDefinition>> getAllDatasetDefinitions(@RequestParam(required = false) Boolean internal,
@@ -407,43 +288,17 @@ public class DatasetController {
         if (d == null) {
             Optional<Dataset> datasetIdCheck = datasetBusiness.getById(datasetDTO.getId());
             if (datasetIdCheck.isEmpty()) {
-
-                Optional<DatasetDefinition> datasetDefinition = datasetDefinitionBusiness.getById(datasetDTO.getDatasetDefinitionId());
-                if (datasetDefinition.isPresent()) {
-                    DatasetDefinition dd = datasetDefinition.get();
-
-                    Dataset dataset = new Dataset();
-                    dataset.setId(datasetDTO.getId());
-                    dataset.setDatasetDefinition(dd);
-                    dataset.setStartDate(datasetDTO.getStartDate());
-                    dataset.setEndDate(datasetDTO.getEndDate());
-                    dataset.setResolution(datasetDTO.getResolution());
-                    dataset.setK(datasetDTO.getK());
-                    dataset.setDataPoints(datasetDTO.getDataPoints());
-
-                    try {
-                        Dataset dsSave = datasetBusiness.save(dataset);
-                        if (dsSave != null) {
-                            dd.setUpdatedOn(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime()));
-                            dd.update(dd);
-                            datasetDefinitionBusiness.save(dd);
-                        }
-
-                        response.put("data", dsSave);
-                    } catch (Exception e) {
-                        logger.error("Exception occurred " + e.getMessage());
-                        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-                    }
-
-                } else {
+                Dataset dataset = getDataset(datasetDTO);
+                if (dataset == null) {
                     logger.error("Dataset definition not found");
                     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                } else {
+                    response.put("data", dataset);
                 }
             } else {
                 logger.error("Dataset already exists");
                 return new ResponseEntity<>(HttpStatus.CONFLICT);
             }
-
         } else {
             logger.error("Dataset already exists");
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -452,6 +307,7 @@ public class DatasetController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
     @PutMapping("/dataset/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable UUID id,
                                                       @RequestBody DatasetDTO dataset) throws DefaultException {
@@ -459,4 +315,190 @@ public class DatasetController {
         response.put("data", datasetBusiness.update(id, dataset));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    private User getUser(String username){
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        return userOpt.orElse(null);
+    }
+
+    private DatasetResponseDTO getDatasetResponseDTO(DatasetDefinition d){
+        List<DatasetListDTO> dsList = datasetBusiness.getAllByDatasetDefinitionId(d.getId());
+        List<DownloadsByDay> dlList = orderBusiness.getAllByDatasetDefinitionId(d.getId());
+
+        return new DatasetResponseDTO(d.getName(),
+                d.getDescription(), d.getCountryCode(), d.getCity(),
+                d.getFee(), d.getPublish(),
+                d.getOrganization(), d.getId(),
+                d.getUpdatedOn(), getAverageDataPoints(dsList), dsList, d.getUser().getId(), d.getInternal(),
+                dlList.stream().mapToInt(DownloadsByDay::getCount).sum(),
+                d.getPublishMDS(), d.getPublishedOn(), d.getFee1d(), d.getFee3mo(), d.getFee6mo(), d.getFee12mo(),
+                d.getUser().getVendor());
+    }
+
+    private List<DatasetResponseDTO> getDatasetResponseList(Boolean publish, Boolean free, Stream<DatasetResponseDTO> data) {
+        if (publish == null) {
+            return getList(free, data);
+        } else {
+            return getList(free, publish, data);
+        }
+    }
+
+    private List<DatasetResponseDTO> getList(Boolean free, Stream<DatasetResponseDTO> data) {
+        List<DatasetResponseDTO> lst;
+        if (free == null) {
+            lst = data.collect(Collectors.toList());
+        } else {
+            lst = data.filter(dt -> checkFree(free, dt.getFee()))
+                    .collect(Collectors.toList());
+        }
+        return lst;
+    }
+
+    private List<DatasetResponseDTO> getList(Boolean free, Boolean publish, Stream<DatasetResponseDTO> data) {
+        List<DatasetResponseDTO> lst;
+        if (free == null) {
+            lst = data.filter(dt -> checkPublish(publish,dt.getPublish()))
+                    .collect(Collectors.toList());
+        } else {
+            lst = data.filter(dt -> checkPublish(publish, free, dt.getPublish(), dt.getFee()))
+                    .collect(Collectors.toList());
+        }
+        return lst;
+    }
+
+
+    private List<MyDatasetsDTO> checkPublishData(Boolean publish, Stream<MyDatasetsDTO> data){
+
+        if (publish != null) {
+            if (publish) {
+                data = data.filter(dt -> checkPublish(dt.getPublish(), true));
+            } else {
+                data = data.filter(dt -> checkPublish(dt.getPublish(), false));
+            }
+        }
+
+        return data.collect(Collectors.toList());
+    }
+    private boolean checkPublish(Boolean responsePublish, boolean flag){
+        if (flag){
+            return responsePublish != null && responsePublish;
+        }else{
+            return responsePublish != null && !responsePublish;
+        }
+    }
+
+    private boolean checkDelete(User userData, DatasetDefinition datasetDef, Dataset dataset){
+        if (userData.getId().equals(datasetDef.getUser().getId()) ||
+                userData.getRoles().stream().map(r -> r.getName().name()).toList().contains(ERole.ROLE_ADMIN.name())) {
+            if (checkInternal(datasetDef.getInternal())) {
+                delete(PATH + "/" + datasetDef.getId(), dataset);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkDelete(User userData, DatasetDefinition datasetDef){
+        if (userData.getId().equals(datasetDef.getUser().getId()) ||
+                userData.getRoles().stream().map(r -> r.getName().name()).toList().contains(ERole.ROLE_ADMIN.name())) {
+            if (datasetDef.getInternal() != null && !datasetDef.getInternal()) {
+                try {
+                    FileUtils.deleteDirectory(new File(PATH + "/" + datasetDef.getId()));
+                } catch (IOException e) {
+                    logger.error(e.getMessage());
+                }
+            }
+            return true;
+        }else {
+            return false;
+        }
+    }
+
+    private boolean checkInternal(Boolean internal){
+        return internal != null && !internal;
+    }
+
+    private void delete(String path, Dataset dataset){
+        File files =  new File(path);
+        if (files.listFiles() != null) {
+            for (File f : Objects.requireNonNull(files.listFiles())) {
+                if (f.getName().contains(dataset.getId().toString())) {
+                    f.delete();
+                }
+            }
+        }
+    }
+
+    private boolean checkFree(Boolean free, Double fee){
+        return fee != null && (free ? fee.equals(0D) : fee > 0);
+    }
+
+
+    private boolean checkPublish(Boolean publish, Boolean responsePublish){
+        return responsePublish != null && (publish == responsePublish);
+    }
+
+    private boolean checkPublish(Boolean publish, Boolean free, Boolean responsePublish, Double fee){
+        return responsePublish != null && (publish == responsePublish) &&
+                checkFree(free, fee);
+    }
+
+    private long getAverageDataPoints(List<DatasetListDTO> dsList) {
+        return (long) dsList.stream().filter(o -> o != null && o.getDataPoints() != null)
+                .mapToLong(DatasetListDTO::getDataPoints)
+                .average()
+                .orElse(0L);
+    }
+    private Dataset getDataset(UUID id){
+        Optional<Dataset> ds = datasetBusiness.getById(id);
+        return ds.orElse(null);
+    }
+
+    private Dataset getDataset(DatasetDTO datasetDTO) {
+        Optional<DatasetDefinition> datasetDefinition = datasetDefinitionBusiness.getById(datasetDTO.getDatasetDefinitionId());
+        if (datasetDefinition.isPresent()) {
+            DatasetDefinition dd = datasetDefinition.get();
+
+            Dataset dataset = new Dataset();
+            dataset.setId(datasetDTO.getId());
+            dataset.setDatasetDefinition(dd);
+            dataset.setStartDate(datasetDTO.getStartDate());
+            dataset.setEndDate(datasetDTO.getEndDate());
+            dataset.setResolution(datasetDTO.getResolution());
+            dataset.setK(datasetDTO.getK());
+            dataset.setDataPoints(datasetDTO.getDataPoints());
+
+            Dataset dsSave = datasetBusiness.save(dataset);
+            if (dsSave != null) {
+                dd.setUpdatedOn(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime()));
+                dd.update(dd);
+                datasetDefinitionBusiness.save(dd);
+            }
+            return dsSave;
+        }
+        return null;
+    }
+
+
+    private boolean checkUser(User userData, Long userId){
+        return userData.getId().equals(userId);
+    }
+
+    private void createAsset(Boolean publishMDS, DatasetDefinition d, DatasetDefinition dsSave){
+        Boolean mdsOrigVal = d.getPublishMDS();
+        if (publishMDS && !mdsOrigVal) {
+            String accessToken = mdsBusiness.getAuthenticationToken();
+            logger.info(accessToken);
+            if (accessToken != null) {
+                mdsBusiness.createAsset(dsSave, accessToken);
+            }
+        }
+    }
+
+    private DatasetDefinition getDatasetDefinition(UUID id) {
+        Optional<DatasetDefinition> opt = datasetDefinitionBusiness.getById(id);
+        return opt.orElse(null);
+    }
+
+
 }

@@ -43,11 +43,10 @@ public class SendEmail {
         });
 
         Message message = new MimeMessage(session);
-        String toEmail = email.getRecipientEmail() == null ? CONTACT_EMAIL : email.getRecipientEmail();
         try {
             message.setFrom(new InternetAddress(SMTP_AUTH_USERNAME));
             message.setRecipients(
-                    Message.RecipientType.TO, InternetAddress.parse(toEmail));
+                    Message.RecipientType.TO, InternetAddress.parse(getRecipientEmail(email.getRecipientEmail())));
 
             String subject = email.getRecipientEmail() != null && email.getSubject() == null ? "[UtiP-DAM] Web channel inquiry" : email.getSubject();
             subject = subject == null ? "[Contact Us] Web channel inquiry" : subject;
@@ -82,6 +81,10 @@ public class SendEmail {
             return e.getMessage();
         }
 
+    }
+
+    private String getRecipientEmail(String email){
+        return  email == null ? CONTACT_EMAIL : email;
     }
 
     private String sanitizeHTML(String untrustedHTML){

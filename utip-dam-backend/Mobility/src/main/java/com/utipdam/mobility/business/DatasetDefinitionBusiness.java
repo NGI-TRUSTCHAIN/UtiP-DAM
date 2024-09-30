@@ -1,7 +1,6 @@
 package com.utipdam.mobility.business;
 
 import com.utipdam.mobility.config.BusinessService;
-import com.utipdam.mobility.exception.DefaultException;
 import com.utipdam.mobility.model.DatasetDefinitionDTO;
 import com.utipdam.mobility.model.entity.DatasetDefinition;
 import com.utipdam.mobility.model.entity.Organization;
@@ -14,10 +13,7 @@ import com.utipdam.mobility.model.service.ServerService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @BusinessService
 public class DatasetDefinitionBusiness {
@@ -65,20 +61,9 @@ public class DatasetDefinitionBusiness {
         ds.setPublish(dataset.isPublish());
 
         if (dataset.getServer() != null){
-            Server sv = serverService.findByName(dataset.getServer().getName());
-            if (sv == null) {
-                Server s = new Server(dataset.getServer().getName(), dataset.getServer().getDomain());
-                ds.setServer(serverService.save(s));
-            }else{
-                ds.setServer(sv);
-            }
+            ds.setServer(getServer(dataset.getServer().getName(), dataset.getServer().getDomain()));
         }
-
-        User user;
-        Optional<User>  userOpt = userRepository.findById(dataset.getUserId());
-
-        user = userOpt.get();
-        ds.setUser(user);
+        ds.setUser(getUser(dataset.getUserId()));
         ds.setPublishMDS(dataset.isPublishMDS());
         ds.setPublishedOn(dataset.isPublish() ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime()) : null);
         ds.setFee1d(dataset.getFee1d());
@@ -86,83 +71,92 @@ public class DatasetDefinitionBusiness {
         ds.setFee6mo(dataset.getFee6mo());
         ds.setFee12mo(dataset.getFee12mo());
         ds.setUpdatedOn(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime()));
-        if (dataset.getOrganization() != null){
-            Organization response = organizationService.findByNameAndEmail(dataset.getOrganization().getName(), dataset.getOrganization().getEmail());
-            if (response == null) {
-                UUID orgUUID = UUID.randomUUID();
-                Organization org = new Organization(orgUUID, dataset.getOrganization().getName(), dataset.getOrganization().getEmail());
-                ds.setOrganization(organizationService.save(org));
-            }else{
-                ds.setOrganization(response);
-            }
+        if (dataset.getOrganization() != null) {
+            ds.setOrganization(getOrganization(dataset.getOrganization().getName(),
+                    dataset.getOrganization().getEmail()));
         }
         return datasetDefinitionService.save(ds);
     }
 
-    public DatasetDefinition update(UUID id, DatasetDefinitionDTO dataset) throws DefaultException {
-        if (id == null) {
-            throw new DefaultException("id can not be null");
-        }
+    public DatasetDefinition update(UUID id, DatasetDefinitionDTO dataset) {
         Optional<DatasetDefinition> ds = datasetDefinitionService.findById(id);
         if (ds.isPresent()){
             DatasetDefinition data = new DatasetDefinition();
             data.setId(id);
-            data.setName(dataset.getName() == null ? ds.get().getName() : dataset.getName());
-            data.setDescription(dataset.getDescription() == null ? ds.get().getDescription() : dataset.getDescription());
-            data.setCountryCode(dataset.getCountryCode() == null ? ds.get().getCountryCode() : dataset.getCountryCode());
-            data.setCity(dataset.getCity() == null ? ds.get().getCity() : dataset.getCity());
-            data.setFee(dataset.getFee() == null ? ds.get().getFee() : dataset.getFee());
+            data.setName(checkEmpty(dataset.getName(), ds.get().getName()));
+            data.setDescription(checkEmpty(dataset.getDescription(),ds.get().getDescription()));
+            data.setCountryCode(checkEmpty(dataset.getCountryCode(), ds.get().getCountryCode()));
+            data.setCity(checkEmpty(dataset.getCity(), ds.get().getCity()));
+            data.setFee(checkEmpty(dataset.getFee(), ds.get().getFee()));
             if (dataset.getOrganization() == null) {
                 data.setOrganization(ds.get().getOrganization());
             }else{
-                Organization response = organizationService.findByNameAndEmail(dataset.getOrganization().getName(), dataset.getOrganization().getEmail());
-                if (response == null) {
-                    UUID orgUUID = UUID.randomUUID();
-                    Organization org = new Organization(orgUUID, dataset.getOrganization().getName(), dataset.getOrganization().getEmail());
-                    data.setOrganization(organizationService.save(org));
-                }else{
-                    data.setOrganization(response);
-                }
+                data.setOrganization(getOrganization(dataset.getOrganization().getName(),
+                        dataset.getOrganization().getEmail()));
             }
+
             data.setPublish(dataset.isPublish());
             if (ds.get().getInternal()){
                 data.setInternal(true);
+                data.setServer(ds.get().getServer());
             }else{
                 data.setInternal(dataset.isInternal());
                 if (dataset.getServer() != null){
-                    Server sv = serverService.findByName(dataset.getServer().getName());
-                    if (sv == null) {
-                        Server s = new Server(dataset.getServer().getName(), dataset.getServer().getDomain());
-                        data.setServer(serverService.save(s));
-                    }else{
-                        data.setServer(sv);
-                    }
+                    data.setServer(getServer(dataset.getServer().getName(), dataset.getServer().getDomain()));
                 }
             }
 
-
-            User user;
-            Optional<User> userOpt = userRepository.findById(dataset.getUserId());
-
-            if (userOpt.isPresent()){
-                user = userOpt.get();
-                data.setUser(user);
-            }
+            data.setUser(getUser(dataset.getUserId()));
             data.setPublishMDS(dataset.isPublishMDS());
-            data.setPublishedOn(dataset.isPublish() && dataset.getPublishedOn() == null ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime()) : ds.get().getPublishedOn());
-            data.setFee1d(dataset.getFee1d() == null ? ds.get().getFee1d() : dataset.getFee1d());
-            data.setFee3mo(dataset.getFee3mo() == null ? ds.get().getFee3mo() : dataset.getFee3mo());
-            data.setFee6mo(dataset.getFee6mo() == null ? ds.get().getFee6mo() : dataset.getFee6mo());
-            data.setFee12mo(dataset.getFee12mo() == null ? ds.get().getFee12mo() : dataset.getFee12mo());
+            data.setPublishedOn(checkPublish(dataset.isPublish(), dataset.getPublishedOn(), ds.get().getPublishedOn()));
+            data.setFee1d(checkEmpty(dataset.getFee1d(),ds.get().getFee1d()));
+            data.setFee3mo(checkEmpty(dataset.getFee3mo(), ds.get().getFee3mo()));
+            data.setFee6mo(checkEmpty(dataset.getFee6mo(), ds.get().getFee6mo()));
+            data.setFee12mo(checkEmpty(dataset.getFee12mo(), ds.get().getFee12mo()));
             data.setUpdatedOn(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime()));
             ds.get().update(data);
             return datasetDefinitionService.save(ds.get());
-        }else{
-            return null;
         }
+
+        return null;
     }
 
     public void delete(UUID id) {
         datasetDefinitionService.delete(id);
     }
+
+    private String checkEmpty(String text, String defaultVal){
+        return text == null ? defaultVal: text;
+    }
+
+    private Double checkEmpty(Double text, Double defaultVal){
+        return text == null ? defaultVal: text;
+    }
+
+
+    private String checkPublish(Boolean isPublish, String text, String defaultVal){
+        return isPublish && text == null ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime()) : defaultVal;
+    }
+
+
+    private Organization getOrganization(String name, String email){
+        Organization response = organizationService.findByNameAndEmail(name, email);
+        if (response == null) {
+            UUID orgUUID = UUID.randomUUID();
+            return organizationService.save(new Organization(orgUUID, name, email));
+        }else {
+            return response;
+        }
+    }
+
+    private Server getServer(String name, String domain){
+        Server sv = serverService.findByName(name);
+        return Objects.requireNonNullElseGet(sv, () -> serverService.save(new Server(name, domain)));
+    }
+
+    private User getUser(long id){
+        Optional<User> userOpt = userRepository.findById(id);
+        return userOpt.orElse(null);
+    }
+
 }

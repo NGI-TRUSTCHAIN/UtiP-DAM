@@ -58,7 +58,6 @@ public class LocationController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-
         Optional<Location> loc = locationBusiness.getById(location.getId(), location.getDatasetDefinitionId());
 
         if (loc.isPresent()) {
@@ -72,7 +71,7 @@ public class LocationController {
 
     @PutMapping("/location/{datasetDefinitionId}/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable UUID datasetDefinitionId, @PathVariable Integer id,
-                                                      @RequestBody Location location) throws DefaultException {
+                                                      @RequestBody Location location) {
         Map<String, Object> response = new HashMap<>();
         response.put("data", locationBusiness.update(id, datasetDefinitionId, location));
         return new ResponseEntity<>(response, HttpStatus.OK);
