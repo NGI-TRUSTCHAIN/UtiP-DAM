@@ -54,7 +54,12 @@ cd utipdam-docker
 docker-compose pull && docker-compose up -d
 ```
 
+## API Documentation
+
+https://app.swaggerhub.com/apis/JANINE_3/utip-dam/1.0.0
+
 ## Usage
+
 
 1. anonymize
 
