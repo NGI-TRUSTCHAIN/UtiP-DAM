@@ -56,7 +56,7 @@ docker-compose pull && docker-compose up -d
 
 ## API Documentation
 
-[Swagger](https://app.swaggerhub.com/apis/JANINE_3/utip-dam/1.0.0)
+[Swagger](https://app.swaggerhub.com/apis-docs/JANINE_3/utip-dam/1.0.0#/)
 
 ## Usage
 
