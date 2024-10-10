@@ -56,7 +56,7 @@ docker-compose pull && docker-compose up -d
 
 ## API Documentation
 
-https://app.swaggerhub.com/apis/JANINE_3/utip-dam/1.0.0
+[Swagger](https://app.swaggerhub.com/apis/JANINE_3/utip-dam/1.0.0)
 
 ## Usage
 
@@ -78,6 +78,16 @@ curl -X POST "http://localhost:8888/api/mobility/audit" --form file=@test.csv --
 ```bash
 curl -X GET "http://localhost:8888/api/deviceToVisitorId?sensorId=3281&mac=4C:75:25:97:D1:FD"
 ```
+
+## Video Tutorial
+
+[Docker](https://www.youtube.com/watch?v=M9J0vmsJJ5E)
+
+[External API usage](https://www.youtube.com/watch?v=O_3VPGCidi8)
+
+[About UtiP-DAM](https://www.youtube.com/watch?v=SS8_HyBIG-I)
+
+
 
 ## Contact
 
